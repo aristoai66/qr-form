@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>درخواست مشاوره دکوراسیون</title>
+
+  <style>
+    body {
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .form-box {
+      max-width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: #111;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #result {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="form-box">
+
+  <h2>درخواست مشاوره دکوراسیون</h2>
+
+  <form id="leadForm">
+
+    <label>نام و نام خانوادگی</label>
+    <input type="text" id="name" required>
+
+    <label>شماره موبایل</label>
+    <input type="tel" id="phone" required>
+
+    <label>نوع درخواست</label>
+    <select id="request_type" required>
+      <option value="">انتخاب کنید</option>
+      <option value="طراحی داخلی">طراحی داخلی</option>
+      <option value="بازسازی">بازسازی</option>
+      <option value="کابینت">کابینت</option>
+      <option value="دکوراسیون">دکوراسیون</option>
+      <option value="استعلام قیمت">استعلام قیمت</option>
+    </select>
+
+    <label>توضیحات درخواست</label>
+    <textarea id="description"></textarea>
+
+    <label>شهر</label>
+    <input type="text" id="city" required>
+
+    <button type="submit" id="submitBtn">
+      ارسال درخواست
+    </button>
+
+    <div id="result"></div>
+
+  </form>
+
+</div>
+
+<script>
+
+const WEBHOOK_URL = "http://localhost:5678/webhook/1d54d113-4340-496e-a9df-0d2483de0783";
+
+document.getElementById("leadForm").addEventListener("submit", async function(e) {
+
+  e.preventDefault();
+
+  const button = document.getElementById("submitBtn");
+  const result = document.getElementById("result");
+
+  button.disabled = true;
+  button.innerText = "در حال ارسال...";
+
+  const data = {
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    request_type: document.getElementById("request_type").value,
+    description: document.getElementById("description").value,
+    city: document.getElementById("city").value
+  };
+
+  try {
+
+    const response = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error("ارسال ناموفق بود");
+    }
+
+    result.innerText = "درخواست شما با موفقیت ثبت شد.";
+
+    document.getElementById("leadForm").reset();
+
+  } catch (error) {
+
+    result.innerText = "خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.";
+
+  }
+
+  button.disabled = false;
+  button.innerText = "ارسال درخواست";
+
+});
+
+</script>
+
+</body>
+</html>
