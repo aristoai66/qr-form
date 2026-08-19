@@ -137,12 +137,22 @@ document.getElementById("leadForm").addEventListener("submit", async function(e)
   try {
 
     const response = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data)
+});
+
+const result = await response.json();
+
+if (response.ok && result.customer_id) {
+  window.location.href =
+    "design.html?customer_id=" +
+    encodeURIComponent(result.customer_id);
+} else {
+  throw new Error("customer_id دریافت نشد");
+};
 
     if (!response.ok) {
       throw new Error("ارسال ناموفق بود");
