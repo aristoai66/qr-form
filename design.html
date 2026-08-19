@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>طراحی هوشمند آشپزخانه</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    p {
+      line-height: 1.8;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      background: #222;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>طراحی هوشمند آشپزخانه</h1>
+
+    <p>
+      عکس آشپزخانه خود را ارسال کنید تا طراحی پیشنهادی برای شما آماده شود.
+    </p>
+
+    <input
+      type="file"
+      id="image"
+      name="image"
+      accept="image/*"
+    >
+
+    <textarea
+      id="description"
+      placeholder="توضیحات دلخواه خود را بنویسید؛ مثلاً رنگ، سبک یا مدل موردنظر..."
+    ></textarea>
+
+    <button id="send">
+      ارسال درخواست طراحی
+    </button>
+
+    <p id="message"></p>
+
+  </div>
+
+  <script>
+
+    document.getElementById("send").addEventListener("click", async () => {
+
+      const file = document.getElementById("image").files[0];
+      const description =
+        document.getElementById("description").value;
+
+      const message =
+        document.getElementById("message");
+
+      if (!file) {
+        message.textContent = "لطفاً عکس آشپزخانه را انتخاب کنید.";
+        return;
+      }
+
+      const formData = new FormData();
+
+      formData.append("image", file);
+      formData.append("description", description);
+
+      try {
+
+        const response = await fetch("WEBHOOK_URL", {
+          method: "POST",
+          body: formData
+        });
+
+        if (response.ok) {
+          message.textContent =
+            "درخواست شما با موفقیت ارسال شد.";
+        } else {
+          message.textContent =
+            "خطا در ارسال درخواست.";
+        }
+
+      } catch (error) {
+
+        message.textContent =
+          "خطا در اتصال به سرور.";
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
