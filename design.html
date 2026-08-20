@@ -101,6 +101,7 @@
     document.getElementById("send").addEventListener("click", async () => {
 
       const file = document.getElementById("image").files[0];
+
       const description =
         document.getElementById("description").value;
 
@@ -112,33 +113,57 @@
         return;
       }
 
-        const customerId = new URLSearchParams(window.location.search).get("customer_id");
-      
-       console.log("CUSTOMER ID:", customerId);
+      // دریافت customer_id از آدرس صفحه
+      let customerId =
+        new URLSearchParams(window.location.search).get("customer_id");
 
-        const formData = new FormData();
+      // تمیز کردن customer_id
+      if (customerId) {
+        customerId = customerId
+          .trim()
+          .replace(/^=/, "");
+      }
 
-          formData.append("image", file);
-          formData.append("description", description);
-          formData.append("customer_id",customerId.replace(/^=/, "")
-        );
-      
+      console.log("CUSTOMER ID:", customerId);
+
+      // اگر customer_id وجود نداشت، ارسال را متوقف کن
+      if (!customerId) {
+        message.textContent =
+          "شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.";
+        return;
+      }
+
+      const formData = new FormData();
+
+      formData.append("image", file);
+      formData.append("description", description);
+      formData.append("customer_id", customerId);
+
       try {
 
-        const response = await fetch("https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook-test/design-request", {
-          method: "POST",
-          body: formData
-        });
+        const response = await fetch(
+          "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook-test/design-request",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
 
         if (response.ok) {
+
           message.textContent =
             "درخواست شما با موفقیت ارسال شد.";
+
         } else {
+
           message.textContent =
             "خطا در ارسال درخواست.";
+
         }
 
       } catch (error) {
+
+        console.error(error);
 
         message.textContent =
           "خطا در اتصال به سرور.";
@@ -151,4 +176,3 @@
 
 </body>
 </html>
-commit changes
