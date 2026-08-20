@@ -112,11 +112,16 @@
         return;
       }
 
+const customerId =
+  new URLSearchParams(window.location.search).get("customer_id");
+      
       const formData = new FormData();
 
       formData.append("image", file);
       formData.append("description", description);
 
+formData.append("customer_id", customerId);
+      
       try {
 
         const response = await fetch("https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook-test/design-request", {
@@ -145,3 +150,4 @@
 
 </body>
 </html>
+commit changes
