@@ -118,7 +118,8 @@
 
           formData.append("image", file);
           formData.append("description", description);
-          formData.append("customer_id", customerId);
+          formData.append("customer_id",customerId.replace(/^=/, "")
+        );
       
       try {
 
