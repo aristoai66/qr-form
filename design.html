@@ -87,6 +87,39 @@
       id="description"
       placeholder="توضیحات دلخواه خود را بنویسید؛ مثلاً رنگ، سبک یا مدل موردنظر..."
     ></textarea>
+<input
+  type="number"
+  id="wall_length"
+  step="0.1"
+  min="0"
+  placeholder="طول دیوار کابینت (متر) - مثال: 4.2"
+>
+
+<input
+  type="number"
+  id="kitchen_width"
+  step="0.1"
+  min="0"
+  placeholder="عرض آشپزخانه (متر) - مثال: 3.1"
+>
+
+<input
+  type="number"
+  id="ceiling_height"
+  step="0.1"
+  min="0"
+  placeholder="ارتفاع سقف (متر) - مثال: 2.8"
+>
+
+<label style="display:block; margin-top:12px;">
+  <input
+    type="checkbox"
+    id="dimensions_approximate"
+    style="width:auto; margin-left:8px;"
+  >
+  اندازه‌ها تقریبی هستند
+</label>
+    
 
     <button id="send">
       ارسال درخواست طراحی
@@ -107,6 +140,18 @@
 
       const message =
         document.getElementById("message");
+
+      const wallLength =
+  document.getElementById("wall_length").value;
+
+const kitchenWidth =
+  document.getElementById("kitchen_width").value;
+
+const ceilingHeight =
+  document.getElementById("ceiling_height").value;
+
+const dimensionsApproximate =
+  document.getElementById("dimensions_approximate").checked;
 
       if (!file) {
         message.textContent = "لطفاً عکس آشپزخانه را انتخاب کنید.";
@@ -138,6 +183,10 @@
       formData.append("image", file);
       formData.append("description", description);
       formData.append("customer_id", customerId);
+      formData.append("wall_length", wallLength);
+formData.append("kitchen_width", kitchenWidth);
+formData.append("ceiling_height", ceilingHeight);
+formData.append("dimensions_approximate", dimensionsApproximate);
 
       try {
 
@@ -176,3 +225,4 @@
 
 </body>
 </html>
+commit changes
