@@ -1,1 +1,371 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نتیجه برآورد کابینت</title>
 
+  <style>
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+      font-size: 25px;
+    }
+
+    h2 {
+      font-size: 19px;
+      margin-bottom: 15px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      color: #666;
+    }
+
+    .value {
+      font-weight: bold;
+      text-align: left;
+    }
+
+    .total {
+      background: #111;
+      color: white;
+      border-radius: 15px;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .total-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .total-price {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .result-text {
+      line-height: 2;
+      white-space: pre-line;
+    }
+
+    .warning {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 12px;
+      padding: 15px;
+      line-height: 1.9;
+      color: #795548;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 18px;
+    }
+
+    .error {
+      background: #ffebee;
+      color: #b71c1c;
+      padding: 20px;
+      border-radius: 12px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px auto;
+        padding: 12px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .row {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .value {
+        text-align: right;
+      }
+
+      .total-price {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div id="loading" class="loading">
+    در حال دریافت نتیجه برآورد...
+  </div>
+
+  <div id="content" style="display:none;">
+
+    <div class="card">
+      <h1>نتیجه برآورد کابینت</h1>
+
+      <div class="row">
+        <span class="label">متریال</span>
+        <span class="value" id="material">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">قیمت پایه هر متر</span>
+        <span class="value" id="price_per_meter">-</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>جزئیات متراژ و قیمت</h2>
+
+      <div class="row">
+        <span class="label">کابینت زمینی</span>
+        <span class="value">
+          <span id="floor_meters">0</span> متر -
+          <span id="floor_price">0</span>
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">کابینت دیواری</span>
+        <span class="value">
+          <span id="wall_meters">0</span> متر -
+          <span id="wall_price">0</span>
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">کابینت قدی</span>
+        <span class="value">
+          <span id="tall_meters">0</span> متر -
+          <span id="tall_price">0</span>
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">جزیره</span>
+        <span class="value">
+          <span id="island_meters">0</span> متر -
+          <span id="island_price">0</span>
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">کمددیواری</span>
+        <span class="value">
+          <span id="wardrobe_meters">0</span> متر -
+          <span id="wardrobe_price">0</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="total">
+      <div class="total-title">
+        برآورد اولیه قیمت
+      </div>
+
+      <div class="total-price">
+        <span id="estimated_price">0</span>
+        تومان
+      </div>
+    </div>
+<div class="card">
+      <h2>توضیحات</h2>
+
+      <div id="customer_result" class="result-text">
+      </div>
+    </div>
+
+    <div class="warning">
+      ⚠️ این مبلغ یک <strong>برآورد اولیه</strong> است.
+      قیمت نهایی پس از اندازه‌گیری دقیق، بررسی نقشه، متریال،
+      یراق‌آلات و تأیید جزئیات توسط مجموعه اعلام خواهد شد.
+    </div>
+
+  </div>
+
+  <div id="error" class="error" style="display:none;">
+    دریافت نتیجه با مشکل مواجه شد.
+  </div>
+
+</div>
+
+
+<script>
+
+  // آدرس Production Webhook سوم را اینجا قرار می‌دهیم
+  const API_URL = "YOUR_PRODUCTION_WEBHOOK_URL";
+
+
+  function formatNumber(value) {
+
+    if (value === null || value === undefined || value === "") {
+      return "0";
+    }
+
+    return Number(value).toLocaleString("fa-IR");
+  }
+
+
+  function setText(id, value) {
+
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.textContent = value ?? "";
+    }
+
+  }
+
+
+  async function loadResult() {
+
+    try {
+
+      const params = new URLSearchParams(window.location.search);
+
+      const customerId = params.get("customer_id");
+
+
+      if (!customerId) {
+        throw new Error("customer_id وجود ندارد");
+      }
+
+
+      const url =
+        API_URL +
+        "?customer_id=" +
+        encodeURIComponent(customerId);
+
+
+      const response = await fetch(url);
+
+
+      if (!response.ok) {
+        throw new Error("خطا در دریافت اطلاعات");
+      }
+
+
+      const data = await response.json();
+
+
+      setText("material", data.material);
+
+      setText(
+        "price_per_meter",
+        formatNumber(data.price_per_meter) + " تومان"
+      );
+
+
+      setText("floor_meters", data.floor_meters);
+      setText(
+        "floor_price",
+        formatNumber(data.floor_price) + " تومان"
+      );
+
+
+      setText("wall_meters", data.wall_meters);
+      setText(
+        "wall_price",
+        formatNumber(data.wall_price) + " تومان"
+      );
+
+
+      setText("tall_meters", data.tall_meters);
+      setText(
+        "tall_price",
+        formatNumber(data.tall_price) + " تومان"
+      );
+
+
+      setText("island_meters", data.island_meters);
+      setText(
+        "island_price",
+        formatNumber(data.island_price) + " تومان"
+      );
+
+
+      setText("wardrobe_meters", data.wardrobe_meters);
+      setText(
+        "wardrobe_price",
+        formatNumber(data.wardrobe_price) + " تومان"
+      );
+
+
+      setText(
+        "estimated_price",
+        formatNumber(data.estimated_price)
+      );
+
+
+      setText(
+        "customer_result",
+        data.customer_result
+      );
+
+
+      document.getElementById("loading").style.display = "none";
+
+      document.getElementById("content").style.display = "block";
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      document.getElementById("loading").style.display = "none";
+
+      document.getElementById("error").style.display = "block";
+
+    }
+
+  }
+
+
+  loadResult();
+
+</script>
+
+</body>
+</html>
