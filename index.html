@@ -524,6 +524,31 @@
 
     </form>
 
+    <form id="otpForm" style="display:none;">
+
+  <label for="otpCode">
+    کد تایید ارسال‌شده را وارد کنید
+  </label>
+
+  <input
+    type="text"
+    id="otpCode"
+    placeholder="کد ۶ رقمی"
+    inputmode="numeric"
+    autocomplete="one-time-code"
+    maxlength="6"
+    required
+  >
+
+  <button
+    type="submit"
+    id="otpSubmitBtn"
+    class="main-button"
+  >
+    ✅ تایید کد
+  </button>
+
+</form>
 
     <div
       id="loading"
