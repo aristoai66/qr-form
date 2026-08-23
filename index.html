@@ -1,180 +1,751 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>درخواست مشاوره دکوراسیون</title>
+
+  <title>شروع طراحی هوشمند</title>
 
   <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Tahoma, Arial, sans-serif;
-      background: #f5f5f5;
       margin: 0;
+      min-height: 100vh;
       padding: 20px;
+
+      font-family: Tahoma, Arial, sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top right,
+          #fff3dc 0,
+          transparent 35%
+        ),
+        linear-gradient(
+          135deg,
+          #f8f7f4,
+          #ebe7df
+        );
+
+      color: #292929;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .form-box {
-      max-width: 500px;
-      margin: 30px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+
+    .container {
+      width: 100%;
+      max-width: 520px;
     }
 
-    h2 {
+
+    .card {
+
+      background: rgba(255,255,255,0.97);
+
+      border-radius: 28px;
+
+      padding: 32px 28px;
+
+      box-shadow:
+        0 20px 55px rgba(0,0,0,0.11);
+
+      border: 1px solid rgba(0,0,0,0.05);
+
+    }
+
+
+    .header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
+
+
+    .logo {
+
+      width: 68px;
+      height: 68px;
+
+      margin: 0 auto 17px;
+
+      border-radius: 21px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #202020,
+          #555
+        );
+
+      color: white;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 30px;
+
+      box-shadow:
+        0 12px 28px rgba(0,0,0,0.18);
+
+    }
+
+
+    h1 {
+
+      margin: 0;
+
+      font-size: 27px;
+
+      font-weight: 900;
+
+      line-height: 1.5;
+
+    }
+
+
+    .subtitle {
+
+      margin: 12px 0 0;
+
+      color: #777;
+
+      font-size: 14px;
+
+      line-height: 2;
+
+    }
+
+
+    .benefits {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 8px;
+
+      margin: 24px 0;
+
+    }
+
+
+    .benefit {
+
+      background: #f7f5f1;
+
+      border-radius: 14px;
+
+      padding: 12px 5px;
+
+      text-align: center;
+
+      font-size: 11px;
+
+      color: #555;
+
+      line-height: 1.7;
+
+    }
+
+
+    .benefit-icon {
+
+      display: block;
+
+      font-size: 20px;
+
+      margin-bottom: 4px;
+
+    }
+
 
     label {
+
       display: block;
-      margin-top: 15px;
+
+      margin-top: 17px;
+
       margin-bottom: 7px;
+
+      font-size: 13px;
+
       font-weight: bold;
+
+      color: #444;
+
     }
 
-    input, select, textarea {
+
+    input {
+
       width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 15px;
-    }
 
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
+      padding: 15px;
 
-    button {
-      width: 100%;
-      margin-top: 22px;
-      padding: 13px;
-      border: none;
-      border-radius: 8px;
-      background: #111;
-      color: white;
+      border-radius: 14px;
+
+      border: 1px solid #ddd8cf;
+
+      background: #fcfbf9;
+
       font-size: 16px;
-      cursor: pointer;
+
+      font-family: inherit;
+
+      outline: none;
+
+      transition: 0.2s;
+
     }
 
-    button:disabled {
-      opacity: 0.6;
+
+    input:focus {
+
+      background: white;
+
+      border-color: #777;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(0,0,0,0.04);
+
     }
+
+
+    input::placeholder {
+
+      color: #aaa;
+
+    }
+
+
+    .main-button {
+
+      width: 100%;
+
+      margin-top: 25px;
+
+      padding: 16px;
+
+      border: none;
+
+      border-radius: 16px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #202020,
+          #444
+        );
+
+      color: white;
+
+      font-family: inherit;
+
+      font-size: 16px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 11px 27px
+        rgba(0,0,0,0.18);
+
+      transition: 0.2s;
+
+    }
+
+
+    .main-button:hover {
+
+      transform:
+        translateY(-1px);
+
+      box-shadow:
+        0 14px 30px
+        rgba(0,0,0,0.22);
+
+    }
+
+
+    .main-button:disabled {
+
+      opacity: 0.6;
+
+      cursor: not-allowed;
+
+      transform: none;
+
+    }
+
+
+    .hint {
+
+      text-align: center;
+
+      margin-top: 14px;
+
+      color: #999;
+
+      font-size: 11px;
+
+      line-height: 1.8;
+
+    }
+
 
     #result {
+
       text-align: center;
-      margin-top: 15px;
-      font-weight: bold;
+
+      margin-top: 17px;
+
+      font-size: 13px;
+
+      line-height: 1.8;
+
     }
+
+
+    .error {
+
+      color: #c0392b;
+
+    }
+
+
+    .success {
+
+      color: #16834b;
+
+    }
+
+
+    .loading {
+
+      display: none;
+
+      text-align: center;
+
+      margin-top: 18px;
+
+      color: #777;
+
+      font-size: 12px;
+
+    }
+
+
+    .spinner {
+
+      width: 25px;
+
+      height: 25px;
+
+      margin:
+        0 auto 8px;
+
+      border:
+        3px solid #ddd;
+
+      border-top-color:
+        #333;
+
+      border-radius: 50%;
+
+      animation:
+        spin 0.8s linear infinite;
+
+    }
+
+
+    @keyframes spin {
+
+      to {
+
+        transform:
+          rotate(360deg);
+
+      }
+
+    }
+
+
+    @media (max-width: 520px) {
+
+      body {
+
+        padding: 10px;
+
+      }
+
+
+      .card {
+
+        padding: 25px 20px;
+
+        border-radius: 23px;
+
+      }
+
+
+      h1 {
+
+        font-size: 23px;
+
+      }
+
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
-<div class="form-box">
 
-  <h2>درخواست مشاوره دکوراسیون</h2>
+<div class="container">
 
-  <form id="leadForm">
 
-    <label>نام و نام خانوادگی</label>
-    <input type="text" id="name" required>
+  <div class="card">
 
-    <label>شماره موبایل</label>
-    <input type="tel" id="phone" required>
 
-    <label>نوع درخواست</label>
-    <select id="request_type" required>
-      <option value="">انتخاب کنید</option>
-      <option value="طراحی داخلی">طراحی داخلی</option>
-      <option value="بازسازی">بازسازی</option>
-      <option value="کابینت">کابینت</option>
-      <option value="دکوراسیون">دکوراسیون</option>
-      <option value="استعلام قیمت">استعلام قیمت</option>
-    </select>
+    <div class="header">
 
-    <label>توضیحات درخواست</label>
-    <textarea id="description"></textarea>
+      <div class="logo">
+        ✦
+      </div>
 
-    <label>شهر</label>
-    <input type="text" id="city" required>
 
-    <button type="submit" id="submitBtn">
-      ارسال درخواست
-    </button>
+      <h1>
+        طراحی رویایی‌تان را شروع کنید
+      </h1>
 
-    <div id="result"></div>
 
-  </form>
+      <p class="subtitle">
+
+        با کمک هوش مصنوعی،
+        فضای موردنظرتان را طراحی کنید
+        و یک برآورد اولیه از هزینه دریافت کنید.
+
+      </p>
+
+    </div>
+
+
+    <div class="benefits">
+
+      <div class="benefit">
+
+        <span class="benefit-icon">
+          ✨
+        </span>
+
+        طراحی هوشمند
+
+      </div>
+
+
+      <div class="benefit">
+
+        <span class="benefit-icon">
+          💰
+        </span>
+
+        برآورد اولیه
+
+      </div>
+
+
+      <div class="benefit">
+
+        <span class="benefit-icon">
+          ⚡
+        </span>
+
+        سریع و رایگان
+
+      </div>
+
+    </div>
+
+
+    <form id="leadForm">
+
+
+      <label for="name">
+        نام و نام خانوادگی
+      </label>
+
+      <input
+        type="text"
+        id="name"
+        placeholder="مثلاً حسین نسیمی"
+        autocomplete="name"
+        required
+      >
+
+
+      <label for="phone">
+        شماره موبایل
+      </label>
+
+      <input
+        type="tel"
+        id="phone"
+        placeholder="09xxxxxxxxx"
+        inputmode="numeric"
+        autocomplete="tel"
+        required
+      >
+
+
+      <button
+        type="submit"
+        id="submitBtn"
+        class="main-button"
+      >
+
+        ✨ شروع طراحی رایگان
+
+      </button>
+
+
+    </form>
+
+
+    <div
+      id="loading"
+      class="loading"
+    >
+
+      <div class="spinner"></div>
+
+      در حال آماده‌سازی...
+
+    </div>
+
+
+    <div
+      id="result"
+    ></div>
+
+
+    <div class="hint">
+
+      اطلاعات شما فقط برای ایجاد حساب و
+      ادامه فرآیند طراحی استفاده می‌شود.
+
+    </div>
+
+
+  </div>
+
 
 </div>
 
+
 <script>
 
-const WEBHOOK_URL = "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/1d54d113-4340-496e-a9df-0d2483de0783";
 
-document.getElementById("leadForm").addEventListener("submit", async function(e) {
+const WEBHOOK_URL =
+  "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/1d54d113-4340-496e-a9df-0d2483de0783";
 
-  e.preventDefault();
 
-  const button = document.getElementById("submitBtn");
-  const result = document.getElementById("result");
+document
+  .getElementById("leadForm")
+  .addEventListener(
+    "submit",
+    async function(e) {
 
-  button.disabled = true;
-  button.innerText = "در حال ارسال...";
+      e.preventDefault();
 
-  const data = {
-    name: document.getElementById("name").value,
-    phone: document.getElementById("phone").value,
-    request_type: document.getElementById("request_type").value,
-    description: document.getElementById("description").value,
-    city: document.getElementById("city").value
-  };
 
-  try {
+      const button =
+        document.getElementById(
+          "submitBtn"
+        );
 
-    const response = await fetch(WEBHOOK_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(data)
-});
 
-const result = await response.json();
+      const result =
+        document.getElementById(
+          "result"
+        );
 
-if (response.ok && result.customer_id) {
-  window.location.href =
-    "design.html?customer_id=" +
-    encodeURIComponent(result.customer_id);
-} else {
-  throw new Error("customer_id دریافت نشد");
-};
 
-    if (!response.ok) {
-      throw new Error("ارسال ناموفق بود");
+      const loading =
+        document.getElementById(
+          "loading"
+        );
+
+
+      const name =
+        document.getElementById(
+          "name"
+        ).value.trim();
+
+
+      const phone =
+        document.getElementById(
+          "phone"
+        ).value.trim();
+
+
+      result.textContent = "";
+
+      result.className = "";
+
+
+      if (!name || !phone) {
+
+        result.textContent =
+          "لطفاً نام و شماره موبایل را وارد کنید.";
+
+        result.className =
+          "error";
+
+        return;
+
+      }
+
+
+      button.disabled =
+        true;
+
+
+      loading.style.display =
+        "block";
+
+
+      button.innerText =
+        "در حال بررسی...";
+
+
+      const data = {
+
+        name: name,
+
+        phone: phone
+
+      };
+
+
+      try {
+
+
+        const response =
+          await fetch(
+            WEBHOOK_URL,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify(data)
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "ارسال ناموفق بود"
+          );
+
+        }
+
+
+        const responseData =
+          await response.json();
+
+
+        console.log(
+          "LOGIN RESPONSE:",
+          responseData
+        );
+
+
+        /*
+         * دریافت customer_id
+         */
+
+        const customerId =
+          responseData.customer_id ||
+          (
+            responseData.customer &&
+            responseData.customer.id
+          );
+
+
+        if (!customerId) {
+
+          throw new Error(
+            "customer_id دریافت نشد"
+          );
+
+        }
+
+
+        /*
+         * انتقال خودکار
+         * به صفحه طراحی
+         */
+
+        window.location.href =
+          "design.html?customer_id=" +
+          encodeURIComponent(
+            customerId
+          );
+
+
+      } catch (error) {
+
+
+        console.error(error);
+
+
+        loading.style.display =
+          "none";
+
+
+        result.textContent =
+          "خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.";
+
+        result.className =
+          "error";
+
+
+        button.disabled =
+          false;
+
+
+        button.innerText =
+          "✨ شروع طراحی رایگان";
+
+      }
+
     }
+  );
 
-    result.innerText = "درخواست شما با موفقیت ثبت شد.";
-
-    document.getElementById("leadForm").reset();
-
-  } catch (error) {
-
-    result.innerText = "خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.";
-
-  }
-
-  button.disabled = false;
-  button.innerText = "ارسال درخواست";
-
-});
 
 </script>
 
+
 </body>
+
 </html>
-Commit changes
