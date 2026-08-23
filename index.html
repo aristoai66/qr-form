@@ -583,190 +583,140 @@
 
 <script>
 
+const LOGIN_URL =
+  "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/customer-login";
 
-const WEBHOOK_URL =
-  "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/1d54d113-4340-496e-a9df-0d2483de0783";
+const OTP_VERIFY_URL =
+  "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/customer-otp-request";
 
+let currentPhone = "";
 
-document
-  .getElementById("leadForm")
-  .addEventListener(
-    "submit",
-    async function(e) {
+const leadForm = document.getElementById("leadForm");
+const otpForm = document.getElementById("otpForm");
+const result = document.getElementById("result");
+const loading = document.getElementById("loading");
 
-      e.preventDefault();
+/* مرحله ۱ — ارسال نام و شماره، دریافت OTP */
 
+leadForm.addEventListener("submit", async function (e) {
 
-      const button =
-        document.getElementById(
-          "submitBtn"
-        );
+  e.preventDefault();
 
+  const button = document.getElementById("submitBtn");
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
 
-      const result =
-        document.getElementById(
-          "result"
-        );
+  result.textContent = "";
+  result.className = "";
 
+  if (!name || !phone) {
+    result.textContent = "لطفاً نام و شماره موبایل را وارد کنید.";
+    result.className = "error";
+    return;
+  }
 
-      const loading =
-        document.getElementById(
-          "loading"
-        );
+  currentPhone = phone;
 
+  button.disabled = true;
+  loading.style.display = "block";
+  button.innerText = "در حال ارسال کد...";
 
-      const name =
-        document.getElementById(
-          "name"
-        ).value.trim();
+  try {
 
+    const response = await fetch(LOGIN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name, phone: phone })
+    });
 
-      const phone =
-        document.getElementById(
-          "phone"
-        ).value.trim();
-
-
-      result.textContent = "";
-
-      result.className = "";
-
-
-      if (!name || !phone) {
-
-        result.textContent =
-          "لطفاً نام و شماره موبایل را وارد کنید.";
-
-        result.className =
-          "error";
-
-        return;
-
-      }
-
-
-      button.disabled =
-        true;
-
-
-      loading.style.display =
-        "block";
-
-
-      button.innerText =
-        "در حال بررسی...";
-
-
-      const data = {
-
-        name: name,
-
-        phone: phone
-
-      };
-
-
-      try {
-
-
-        const response =
-          await fetch(
-            WEBHOOK_URL,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify(data)
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "ارسال ناموفق بود"
-          );
-
-        }
-
-
-        const responseData =
-          await response.json();
-
-
-        console.log(
-          "LOGIN RESPONSE:",
-          responseData
-        );
-
-
-        /*
-         * دریافت customer_id
-         */
-
-        const customerId =
-          responseData.customer_id ||
-          (
-            responseData.customer &&
-            responseData.customer.id
-          );
-
-
-        if (!customerId) {
-
-          throw new Error(
-            "customer_id دریافت نشد"
-          );
-
-        }
-
-
-        /*
-         * انتقال خودکار
-         * به صفحه طراحی
-         */
-
-        window.location.href =
-          "design.html?customer_id=" +
-          encodeURIComponent(
-            customerId
-          );
-
-
-      } catch (error) {
-
-
-        console.error(error);
-
-
-        loading.style.display =
-          "none";
-
-
-        result.textContent =
-          "خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.";
-
-        result.className =
-          "error";
-
-
-        button.disabled =
-          false;
-
-
-        button.innerText =
-          "✨ شروع طراحی رایگان";
-
-      }
-
+    if (!response.ok) {
+      throw new Error("ارسال ناموفق بود");
     }
-  );
 
+    const responseData = await response.json();
+    console.log("LOGIN RESPONSE:", responseData);
+
+    /* نمایش فرم OTP و مخفی کردن فرم اول */
+    leadForm.style.display = "none";
+    otpForm.style.display = "block";
+
+    result.textContent = "کد تایید ارسال شد. لطفاً وارد کنید.";
+    result.className = "success";
+
+  } catch (error) {
+
+    console.error(error);
+    result.textContent = "خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.";
+    result.className = "error";
+
+  } finally {
+
+    loading.style.display = "none";
+    button.disabled = false;
+    button.innerText = "✨ شروع طراحی رایگان";
+
+  }
+
+});
+
+/* مرحله ۲ — تایید OTP و دریافت customer_id واقعی */
+
+otpForm.addEventListener("submit", async function (e) {
+
+  e.preventDefault();
+
+  const otpButton = document.getElementById("otpSubmitBtn");
+  const code = document.getElementById("otpCode").value.trim();
+
+  result.textContent = "";
+  result.className = "";
+
+  if (!code) {
+    result.textContent = "لطفاً کد تایید را وارد کنید.";
+    result.className = "error";
+    return;
+  }
+
+  otpButton.disabled = true;
+  loading.style.display = "block";
+  otpButton.innerText = "در حال بررسی...";
+
+  try {
+
+    const response = await fetch(OTP_VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: currentPhone, code: code })
+    });
+
+    if (!response.ok) {
+      throw new Error("تایید ناموفق بود");
+    }
+
+    const responseData = await response.json();
+    console.log("OTP VERIFY RESPONSE:", responseData);
+
+    if (!responseData.success || !responseData.customer_id) {
+      throw new Error(responseData.message || "کد OTP نامعتبر است");
+    }
+
+    /* انتقال به صفحه طراحی با customer_id واقعی */
+    window.location.href =
+      "design.html?customer_id=" +
+      encodeURIComponent(responseData.customer_id);
+
+  } catch (error) {
+
+    console.error(error);
+    result.textContent = error.message || "کد وارد‌شده نامعتبر است.";
+    result.className = "error";
+    otpButton.disabled = false;
+    otpButton.innerText = "✅ تایید کد";
+    loading.style.display = "none";
+
+  }
+
+});
 
 </script>
 
