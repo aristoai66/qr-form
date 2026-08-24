@@ -77,32 +77,24 @@
       margin-bottom: 10px;
     }
 
-    /* =========================
-       آپلود عکس - اصلاح شده
-       ========================= */
+    /* Upload */
 
     .upload-box {
       position: relative;
-      display: block;
-      width: 100%;
       border: 2px dashed #d4d0c8;
       background: #faf9f7;
       border-radius: 20px;
       padding: 25px 15px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.25s ease;
-      overflow: hidden;
+      transition: 0.2s;
+      display: block;
+      width: 100%;
     }
 
     .upload-box:hover {
-      border-color: #888;
+      border-color: #999;
       background: #f6f5f2;
-      transform: translateY(-1px);
-    }
-
-    .upload-box:active {
-      transform: scale(0.99);
     }
 
     .upload-icon {
@@ -131,7 +123,6 @@
       object-fit: cover;
       border-radius: 16px;
       margin-top: 15px;
-      border: 1px solid #e5e1da;
     }
 
     textarea,
@@ -254,9 +245,7 @@
       }
     }
 
-    /* =========================
-       نتیجه
-       ========================= */
+    /* Result */
 
     .result {
       display: none;
@@ -320,6 +309,107 @@
       white-space: pre-line;
     }
 
+    /* جمع قیمت */
+
+    .summary-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 9px 0;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .installation {
+      color: #ffd98a;
+    }
+
+    .final-total {
+      margin-top: 10px;
+      padding-top: 14px;
+      border-top: 2px solid rgba(255,255,255,0.18);
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    /* Social buttons */
+
+    .social-title {
+      text-align: center;
+      margin-top: 25px;
+      margin-bottom: 13px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .social-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .social-btn {
+      text-decoration: none;
+      color: white;
+      padding: 13px 8px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow:
+        0 7px 0 rgba(0,0,0,0.25),
+        0 12px 20px rgba(0,0,0,0.20);
+      transform: translateY(0);
+      transition: 0.15s;
+    }
+
+    .social-btn:hover {
+      transform: translateY(3px);
+      box-shadow:
+        0 4px 0 rgba(0,0,0,0.25),
+        0 8px 15px rgba(0,0,0,0.18);
+    }
+
+    .social-icon {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .instagram {
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    }
+
+    .whatsapp {
+      background: #25D366;
+    }
+
+    .telegram {
+      background: #229ED9;
+    }
+
+    .eitaa {
+      background: #1687d9;
+    }
+
+    .call {
+      background: linear-gradient(135deg, #222, #555);
+      grid-column: 1 / -1;
+    }
+
     .warning {
       margin-top: 16px;
       background: #fff4d6;
@@ -328,124 +418,6 @@
       padding: 13px;
       line-height: 1.8;
       font-size: 12px;
-    }
-
-    /* =========================
-       شبکه های اجتماعی
-       ========================= */
-
-    .social-section {
-      margin-top: 25px;
-      padding-top: 22px;
-      border-top: 1px solid rgba(255,255,255,0.10);
-    }
-
-    .social-title {
-      text-align: center;
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .social-subtitle {
-      text-align: center;
-      color: #bbb;
-      font-size: 12px;
-      margin-bottom: 18px;
-    }
-
-    .social-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .social-button {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      min-height: 58px;
-      border-radius: 17px;
-      text-decoration: none;
-      color: white;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: bold;
-
-      background: linear-gradient(
-        145deg,
-        rgba(255,255,255,0.16),
-        rgba(255,255,255,0.05)
-      );
-
-      border: 1px solid rgba(255,255,255,0.14);
-
-      box-shadow:
-        0 7px 0 rgba(0,0,0,0.25),
-        0 12px 20px rgba(0,0,0,0.22);
-
-      transition: all 0.15s ease;
-    }
-
-    .social-button:hover {
-      transform: translateY(-3px);
-      box-shadow:
-        0 10px 0 rgba(0,0,0,0.22),
-        0 16px 25px rgba(0,0,0,0.25);
-    }
-
-    .social-button:active {
-      transform: translateY(5px);
-      box-shadow:
-        0 2px 0 rgba(0,0,0,0.25),
-        0 5px 10px rgba(0,0,0,0.18);
-    }
-
-    .social-icon {
-      width: 29px;
-      height: 29px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-    }
-
-    .instagram {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(225,48,108,0.35),
-          rgba(131,58,180,0.25)
-        );
-    }
-
-    .whatsapp {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(37,211,102,0.32),
-          rgba(20,120,60,0.22)
-        );
-    }
-
-    .telegram {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(42,171,238,0.35),
-          rgba(20,100,160,0.22)
-        );
-    }
-
-    .eitaa {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(35,130,220,0.35),
-          rgba(20,80,150,0.22)
-        );
     }
 
     @media (max-width: 520px) {
@@ -545,7 +517,7 @@
 
       <textarea
         id="description"
-        placeholder="مثلاً: کابینت مدرن، رنگ روشن، دستگیره مخفی، جزیره داشته باشد..."
+        placeholder="مثلاً: کابینت مدرن، رنگ روشن، دستگیره مخفی، جزیره داشته باشد و فضای کافی برای وسایل برقی در نظر گرفته شود..."
       ></textarea>
 
     </div>
@@ -672,7 +644,7 @@
       <div class="price-card">
 
         <div class="price-label">
-          مبلغ تقریبی پروژه
+          مبلغ نهایی با هزینه نصب
         </div>
 
         <div
@@ -700,10 +672,146 @@
       <div id="priceDetails"></div>
 
 
+      <!-- Price Summary -->
+
+      <div class="summary-box">
+
+        <div class="summary-row">
+
+          <span>
+            جمع کابینت
+          </span>
+
+          <strong id="cabinetTotal">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row installation">
+
+          <span>
+            هزینه نصب (۱۵٪)
+          </span>
+
+          <strong id="installationPrice">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="final-total">
+
+          <span>
+            مبلغ نهایی
+          </span>
+
+          <strong id="finalTotal">
+            -
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- Customer text -->
+
       <div
         id="customerResult"
         class="customer-result"
       ></div>
+
+
+      <!-- Social -->
+
+      <div class="social-title">
+        برای ارتباط و مشاوره سریع با ما در ارتباط باشید
+      </div>
+
+
+      <div class="social-buttons">
+
+        <!-- Instagram -->
+
+        <a
+          class="social-btn instagram"
+          href="https://instagram.com/yourpage"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+
+          <span class="social-icon">📷</span>
+
+          ما را در اینستاگرام دنبال کنید
+
+        </a>
+
+
+        <!-- WhatsApp -->
+
+        <a
+          class="social-btn whatsapp"
+          href="https://wa.me/989121234567"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+
+          <span class="social-icon">💬</span>
+
+          مشاوره سریع واتساپ
+
+        </a>
+
+
+        <!-- Telegram -->
+
+        <a
+          class="social-btn telegram"
+          href="https://t.me/yourpage"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+
+          <span class="social-icon">✈️</span>
+
+          مشاوره سریع تلگرام
+
+        </a>
+
+
+        <!-- Eitaa -->
+
+        <a
+          class="social-btn eitaa"
+          href="https://eitaa.com/yourpage"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+
+          <span class="social-icon">📨</span>
+
+          ارتباط در ایتا
+
+        </a>
+
+
+        <!-- Call -->
+
+        <a
+          class="social-btn call"
+          href="tel:+989121234567"
+        >
+
+          <span class="social-icon">📞</span>
+
+          تماس و مشاوره سریع
+
+        </a>
+
+      </div>
 
 
       <div class="warning">
@@ -711,73 +819,6 @@
         ⚠️ این مبلغ صرفاً برآورد اولیه است.
         قیمت نهایی پس از اندازه‌گیری دقیق در محل و
         تأیید جزئیات اجرایی مشخص خواهد شد.
-
-      </div>
-
-
-      <!-- Social -->
-
-      <div class="social-section">
-
-        <div class="social-title">
-          ما را در اینستاگرام دنبال کنید 📸
-        </div>
-
-        <div class="social-subtitle">
-          مشاوره سریع از طریق واتساپ، تلگرام و ایتا
-        </div>
-
-
-        <div class="social-buttons">
-
-          <!-- اینستاگرام -->
-          <a
-            class="social-button instagram"
-            href="https://instagram.com/YOUR_PAGE"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="social-icon">📸</span>
-            <span>اینستاگرام</span>
-          </a>
-
-
-          <!-- واتساپ -->
-          <a
-            class="social-button whatsapp"
-            href="https://wa.me/989121234567"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="social-icon">💬</span>
-            <span>واتساپ</span>
-          </a>
-
-
-          <!-- تلگرام -->
-          <a
-            class="social-button telegram"
-            href="https://t.me/YOUR_TELEGRAM"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="social-icon">✈️</span>
-            <span>تلگرام</span>
-          </a>
-
-
-          <!-- ایتا -->
-          <a
-            class="social-button eitaa"
-            href="https://eitaa.com/YOUR_EITAA"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="social-icon">📨</span>
-            <span>ایتا</span>
-          </a>
-
-        </div>
 
       </div>
 
@@ -790,16 +831,16 @@
 
 <script>
 
-  /* =========================
-     پیش نمایش عکس
-     ========================= */
-
   const imageInput =
     document.getElementById("image");
 
   const preview =
     document.getElementById("preview");
 
+
+  /*
+   * پیش‌نمایش عکس
+   */
 
   imageInput.addEventListener("change", () => {
 
@@ -824,9 +865,9 @@
   });
 
 
-  /* =========================
-     ارسال درخواست
-     ========================= */
+  /*
+   * ارسال درخواست
+   */
 
   document.getElementById("send").addEventListener(
     "click",
@@ -863,9 +904,11 @@
         ).checked;
 
 
-      message.textContent = "";
+      message.textContent =
+        "";
 
-      message.className = "";
+      message.className =
+        "";
 
 
       if (!file) {
@@ -881,9 +924,9 @@
       }
 
 
-      /* =========================
-         دریافت customer_id
-         ========================= */
+      /*
+       * دریافت customer_id
+       */
 
       let customerId =
         new URLSearchParams(
@@ -920,9 +963,9 @@
       }
 
 
-      /* =========================
-         FormData
-         ========================= */
+      /*
+       * ساخت FormData
+       */
 
       const formData =
         new FormData();
@@ -964,9 +1007,9 @@
       );
 
 
-      /* =========================
-         شروع ارسال
-         ========================= */
+      /*
+       * وضعیت ارسال
+       */
 
       button.disabled =
         true;
@@ -1003,6 +1046,11 @@
           "success";
 
 
+        /*
+         * کمی زمان می‌دهیم تا Workflow
+         * نتیجه را آماده کند.
+         */
+
         setTimeout(
           () => loadDesignResult(customerId),
           1500
@@ -1033,9 +1081,9 @@
   );
 
 
-  /* =========================
-     دریافت نتیجه Workflow 3
-     ========================= */
+  /*
+   * دریافت نتیجه Workflow 3
+   */
 
   async function loadDesignResult(customerId) {
 
@@ -1075,9 +1123,9 @@
       );
 
 
-      /* =========================
-         نمایش نتیجه
-         ========================= */
+      /*
+       * نمایش نتیجه
+       */
 
       document.getElementById(
         "result"
@@ -1085,27 +1133,79 @@
         "block";
 
 
-      const total =
-        Number(
-          data.estimated_price ?? 0
-        );
+      /*
+       * قیمت‌ها
+       */
 
+      const floorPrice =
+        Number(data.floor_price || 0);
+
+      const wallPrice =
+        Number(data.wall_price || 0);
+
+      const tallPrice =
+        Number(data.tall_price || 0);
+
+      const islandPrice =
+        Number(data.island_price || 0);
+
+      const wardrobePrice =
+        Number(data.wardrobe_price || 0);
+
+
+      /*
+       * جمع کابینت
+       */
+
+      const cabinetTotal =
+        floorPrice +
+        wallPrice +
+        tallPrice +
+        islandPrice +
+        wardrobePrice;
+
+
+      /*
+       * هزینه نصب ۱۵٪
+       */
+
+      const installationPrice =
+        cabinetTotal * 0.15;
+
+
+      /*
+       * مبلغ نهایی
+       */
+
+      const finalTotal =
+        cabinetTotal +
+        installationPrice;
+
+
+      /*
+       * نمایش مبلغ نهایی
+       */
 
       document.getElementById(
         "totalPrice"
       ).textContent =
-        total.toLocaleString("fa-IR");
+        Math.round(finalTotal)
+          .toLocaleString("fa-IR");
 
+
+      /*
+       * متریال
+       */
 
       document.getElementById(
         "material"
       ).textContent =
-        data.material ?? "-";
+        data.material || "-";
 
 
-      /* =========================
-         جزئیات قیمت
-         ========================= */
+      /*
+       * نمایش جزئیات
+       */
 
       const details = [
 
@@ -1155,14 +1255,10 @@
       details.forEach(item => {
 
         const meters =
-          Number(
-            item[1] ?? 0
-          );
+          Number(item[1] || 0);
 
         const price =
-          Number(
-            item[2] ?? 0
-          );
+          Number(item[2] || 0);
 
 
         if (
@@ -1202,9 +1298,37 @@
       });
 
 
-      /* =========================
-         متن نتیجه مشتری
-         ========================= */
+      /*
+       * خلاصه مالی
+       */
+
+      document.getElementById(
+        "cabinetTotal"
+      ).textContent =
+        Math.round(cabinetTotal)
+          .toLocaleString("fa-IR") +
+        " تومان";
+
+
+      document.getElementById(
+        "installationPrice"
+      ).textContent =
+        Math.round(installationPrice)
+          .toLocaleString("fa-IR") +
+        " تومان";
+
+
+      document.getElementById(
+        "finalTotal"
+      ).textContent =
+        Math.round(finalTotal)
+          .toLocaleString("fa-IR") +
+        " تومان";
+
+
+      /*
+       * متن مشتری
+       */
 
       document.getElementById(
         "customerResult"
@@ -1214,9 +1338,9 @@
         "نتیجه‌ای برای نمایش وجود ندارد.";
 
 
-      /* =========================
-         اسکرول به نتیجه
-         ========================= */
+      /*
+       * اسکرول نرم
+       */
 
       document.getElementById(
         "result"
@@ -1232,8 +1356,8 @@
 
 
       /*
-       * پردازش هنوز تمام نشده
-       * دوباره امتحان می‌کنیم
+       * اگر پردازش هنوز تمام نشده،
+       * دوباره تلاش می‌کنیم.
        */
 
       setTimeout(
