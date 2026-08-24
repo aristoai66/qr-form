@@ -341,7 +341,6 @@
 <body>
 
 <div class="container">
-
   <div class="card">
 
     <div class="header">
@@ -354,9 +353,6 @@
         طراحی و برآورد اولیه پروژه شما آماده شود.
       </p>
     </div>
-
-
-    <!-- Upload -->
 
     <div class="section">
 
@@ -389,9 +385,6 @@
 
     </div>
 
-
-    <!-- Description -->
-
     <div class="section">
 
       <div class="section-title">
@@ -404,9 +397,6 @@
       ></textarea>
 
     </div>
-
-
-    <!-- Dimensions -->
 
     <div class="section">
 
@@ -430,7 +420,6 @@
           >
         </div>
 
-
         <div>
           <label class="field-label">
             عرض آشپزخانه (متر)
@@ -444,7 +433,6 @@
             placeholder="مثلاً 3.1"
           >
         </div>
-
 
         <div>
           <label class="field-label">
@@ -462,7 +450,6 @@
 
       </div>
 
-
       <div class="approx-box">
 
         <label>
@@ -478,9 +465,6 @@
 
     </div>
 
-
-    <!-- Button -->
-
     <button
       id="send"
       class="main-button"
@@ -488,30 +472,18 @@
       ✨ طراحی و برآورد رایگان با هوش مصنوعی
     </button>
 
-
-    <div
-      id="loading"
-      class="loading"
-    >
+    <div id="loading" class="loading">
       <div class="spinner"></div>
       در حال ارسال درخواست شما...
     </div>
 
-
     <p id="message"></p>
 
-
-    <!-- Result -->
-
-    <div
-      id="result"
-      class="result"
-    >
+    <div id="result" class="result">
 
       <div class="result-title">
         🎉 برآورد اولیه پروژه شما
       </div>
-
 
       <div class="price-card">
 
@@ -519,10 +491,7 @@
           مبلغ تقریبی پروژه
         </div>
 
-        <div
-          id="totalPrice"
-          class="price"
-        >
+        <div id="totalPrice" class="price">
           -
         </div>
 
@@ -532,457 +501,182 @@
 
       </div>
 
-
       <div class="material">
         متریال پیشنهادی:
         <strong id="material">-</strong>
       </div>
 
-
       <div id="priceDetails"></div>
 
-
-      <div
-        id="customerResult"
-        class="customer-result"
-      ></div>
-
+      <div id="customerResult" class="customer-result"></div>
 
       <div class="warning">
-
         ⚠️ این مبلغ صرفاً برآورد اولیه است.
         قیمت نهایی پس از اندازه‌گیری دقیق در محل و
         تأیید جزئیات اجرایی مشخص خواهد شد.
-
       </div>
 
     </div>
 
   </div>
-
 </div>
-
 
 <script>
 
-  const imageInput =
-    document.getElementById("image");
+const imageInput = document.getElementById("image");
+const preview = document.getElementById("preview");
 
-  const preview =
-    document.getElementById("preview");
+imageInput.addEventListener("change", () => {
+
+  const file = imageInput.files[0];
+
+  if (!file) {
+    preview.style.display = "none";
+    return;
+  }
+
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+
+});
 
 
-  /*
-   * پیش‌نمایش عکس
-   */
+document.getElementById("send").addEventListener(
+  "click",
+  async () => {
 
-  imageInput.addEventListener("change", () => {
+    const file =
+      document.getElementById("image").files[0];
 
-    const file = imageInput.files[0];
+    const description =
+      document.getElementById("description").value;
+
+    const message =
+      document.getElementById("message");
+
+    const loading =
+      document.getElementById("loading");
+
+    const button =
+      document.getElementById("send");
+
+    const wallLength =
+      document.getElementById("wall_length").value;
+
+    const kitchenWidth =
+      document.getElementById("kitchen_width").value;
+
+    const ceilingHeight =
+      document.getElementById("ceiling_height").value;
+
+    const dimensionsApproximate =
+      document.getElementById(
+        "dimensions_approximate"
+      ).checked;
+
+    message.textContent = "";
+    message.className = "";
 
     if (!file) {
-      preview.style.display = "none";
+
+      message.textContent =
+        "لطفاً عکس آشپزخانه را انتخاب کنید.";
+
+      message.className = "error";
+
       return;
     }
 
-    preview.src =
-      URL.createObjectURL(file);
 
-    preview.style.display = "block";
+    /*
+     * دریافت customer_id از URL
+     */
 
-  });
+    let customerId =
+      new URLSearchParams(
+        window.location.search
+      ).get("customer_id");
 
+    if (customerId) {
 
-  /*
-   * ارسال درخواست
-   */
-
-  document.getElementById("send").addEventListener(
-    "click",
-    async () => {
-
-      const file =
-        document.getElementById("image").files[0];
-
-      const description =
-        document.getElementById("description").value;
-
-      const message =
-        document.getElementById("message");
-
-      const loading =
-        document.getElementById("loading");
-
-      const button =
-        document.getElementById("send");
-
-
-      const wallLength =
-        document.getElementById("wall_length").value;
-
-      const kitchenWidth =
-        document.getElementById("kitchen_width").value;
-
-      const ceilingHeight =
-        document.getElementById("ceiling_height").value;
-
-      const dimensionsApproximate =
-        document.getElementById(
-          "dimensions_approximate"
-        ).checked;
-
-
-      message.textContent = "";
-
-      message.className = "";
-
-
-      if (!file) {
-
-        message.textContent =
-          "لطفاً عکس آشپزخانه را انتخاب کنید.";
-
-        message.className = "error";
-
-        return;
-
-      }
-
-
-      /*
-       * دریافت customer_id
-       */
-
-      let customerId =
-        new URLSearchParams(
-          window.location.search
-        ).get("customer_id");
-
-
-      if (customerId) {
-
-        customerId =
-          customerId
-            .trim()
-            .replace(/^=/, "");
-
-      }
-
-
-      console.log(
-        "CUSTOMER ID:",
+      customerId =
         customerId
-      );
-
-
-      if (!customerId) {
-
-        message.textContent =
-          "شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.";
-
-        message.className = "error";
-
-        return;
-
-      }
-
-
-      /*
-       * ساخت FormData
-       */
-
-      const formData =
-        new FormData();
-
-
-      formData.append(
-        "image",
-        file
-      );
-
-      formData.append(
-        "description",
-        description
-      );
-
-      formData.append(
-        "customer_id",
-        customerId
-      );
-
-      formData.append(
-        "wall_length",
-        wallLength
-      );
-
-      formData.append(
-        "kitchen_width",
-        kitchenWidth
-      );
-
-      formData.append(
-        "ceiling_height",
-        ceilingHeight
-      );
-
-      formData.append(
-        "dimensions_approximate",
-        dimensionsApproximate
-      );
-
-
-      /*
-       * وضعیت ارسال
-       */
-
-      button.disabled = true;
-
-      loading.style.display =
-        "block";
-
-
-      try {
-
-        const response =
-          await fetch(
-            "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-request",
-            {
-              method: "POST",
-              body: formData
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Request failed"
-          );
-
-        }
-
-
-        message.textContent =
-          "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
-
-        message.className =
-          "success";
-
-
-        /*
-         * کمی زمان می‌دهیم تا Workflow طراحی
-         * رکورد design را ایجاد و پردازش کند.
-         */
-
-        setTimeout(
-          () => loadDesignResult(customerId),
-          1500
-        );
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-          "خطا در اتصال به سرور.";
-
-        message.className =
-          "error";
-
-      } finally {
-
-        loading.style.display =
-          "none";
-
-        button.disabled =
-          false;
-
-      }
+          .trim()
+          .replace(/^=/, "");
 
     }
-  );
+
+    console.log(
+      "CUSTOMER ID:",
+      customerId
+    );
 
 
-  /*
-   * دریافت نتیجه Workflow 3
-   */
+    if (!customerId) {
 
-  async function loadDesignResult(customerId) {
+      message.textContent =
+        "شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.";
+
+      message.className = "error";
+
+      return;
+
+    }
+
+
+    /*
+     * ساخت FormData
+     */
+
+    const formData =
+      new FormData();
+
+    formData.append("image", file);
+    formData.append("description", description);
+    formData.append("customer_id", customerId);
+    formData.append("wall_length", wallLength);
+    formData.append("kitchen_width", kitchenWidth);
+    formData.append("ceiling_height", ceilingHeight);
+    formData.append(
+      "dimensions_approximate",
+      dimensionsApproximate
+    );
+
+
+    button.disabled = true;
+    loading.style.display = "block";
+
 
     try {
 
       const response =
         await fetch(
-          "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-result?customer_id="
-          + encodeURIComponent(customerId)
+          "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-request",
+          {
+            method: "POST",
+            body: formData
+          }
         );
 
 
       if (!response.ok) {
 
         throw new Error(
-          "Result request failed"
+          "Request failed: " + response.status
         );
 
       }
 
 
-      let data =
-  await response.json();
+      message.textContent =
+        "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
 
-if (Array.isArray(data)) {
-  data = data[0];
-}
-
-
-      console.log(
-        "DESIGN RESULT:",
-        data
-      );
+      message.className = "success";
 
 
       /*
-       * نمایش نتیجه
-       */
-
-      document.getElementById(
-        "result"
-      ).style.display =
-        "block";
-
-
-      const total =
-        Number(
-          data.estimated_price || 0
-        );
-
-
-      document.getElementById(
-        "totalPrice"
-      ).textContent =
-        total.toLocaleString("fa-IR");
-
-
-      document.getElementById(
-        "material"
-      ).textContent =
-        data.material || "-";
-
-
-      const details = [
-
-        [
-          "کابینت زمینی",
-          data.floor_meters,
-          data.floor_price
-        ],
-
-        [
-          "کابینت دیواری",
-          data.wall_meters,
-          data.wall_price
-        ],
-
-        [
-          "کابینت قدی",
-          data.tall_meters,
-          data.tall_price
-        ],
-
-        [
-          "جزیره",
-          data.island_meters,
-          data.island_price
-        ],
-
-        [
-          "کمد",
-          data.wardrobe_meters,
-          data.wardrobe_price
-        ]
-
-      ];
-
-
-      const detailsBox =
-        document.getElementById(
-          "priceDetails"
-        );
-
-
-      detailsBox.innerHTML =
-        "";
-
-
-      details.forEach(item => {
-
-        const meters =
-          Number(item[1] || 0);
-
-        const price =
-          Number(item[2] || 0);
-
-
-        if (
-          meters === 0 &&
-          price === 0
-        ) {
-          return;
-        }
-
-
-        const row =
-          document.createElement("div");
-
-
-        row.className =
-          "price-row";
-
-
-        row.innerHTML = `
-          <span>
-            ${item[0]}
-            (${meters.toLocaleString("fa-IR")} متر)
-          </span>
-
-          <strong>
-            ${price.toLocaleString("fa-IR")}
-          </strong>
-        `;
-
-
-        detailsBox.appendChild(row);
-
-      });
-
-
-      document.getElementById(
-        "customerResult"
-      ).textContent =
-        data.customer_result ||
-        "نتیجه‌ای برای نمایش وجود ندارد.";
-
-
-      /*
-       * اسکرول نرم به نتیجه
-       */
-
-      document.getElementById(
-        "result"
-      ).scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      /*
-       * اگر پردازش هنوز تمام نشده باشد،
-       * چند لحظه بعد دوباره امتحان می‌کنیم.
+       * کمی صبر می‌کنیم تا Workflow 2
+       * نتیجه را در Supabase ذخیره کند.
        */
 
       setTimeout(
@@ -990,12 +684,302 @@ if (Array.isArray(data)) {
         2500
       );
 
+
+    } catch (error) {
+
+      console.error(error);
+
+      message.textContent =
+        "خطا در اتصال به سرور.";
+
+      message.className = "error";
+
+    } finally {
+
+      loading.style.display = "none";
+      button.disabled = false;
+
     }
 
   }
+);
+
+
+/*
+* دریافت نتیجه Workflow 3
+*/
+
+async function loadDesignResult(customerId, attempt = 1) {
+
+  try {
+
+    const url =
+      "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-result?customer_id=" +
+      encodeURIComponent(customerId);
+
+    console.log(
+      "RESULT URL:",
+      url
+    );
+
+
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Result request failed: " +
+        response.status
+      );
+
+    }
+
+
+    let data =
+      await response.json();
+
+
+    /*
+     * اگر Respond یک آرایه برگرداند
+     */
+
+    if (Array.isArray(data)) {
+      data = data[0] || {};
+    }
+
+
+    console.log(
+      "DESIGN RESULT:",
+      data
+    );
+
+
+    /*
+     * اگر هنوز نتیجه آماده نشده،
+     * چند بار دوباره امتحان می‌کنیم.
+     */
+
+    const hasResult =
+      data &&
+      (
+        Number(data.estimated_price || 0) > 0 ||
+        String(data.customer_result || "").trim() !== ""
+      );
+
+
+    if (!hasResult) {
+
+      if (attempt < 12) {
+
+        message.textContent =
+          "نتیجه هنوز در حال آماده‌سازی است...";
+
+        setTimeout(
+          () =>
+            loadDesignResult(
+              customerId,
+              attempt + 1
+            ),
+          2500
+        );
+
+        return;
+
+      }
+
+
+      message.textContent =
+        "نتیجه طراحی هنوز آماده نشده است. لطفاً چند لحظه بعد دوباره تلاش کنید.";
+
+      message.className = "error";
+
+      return;
+
+    }
+
+
+    /*
+     * نمایش نتیجه
+     */
+
+    document.getElementById(
+      "result"
+    ).style.display = "block";
+
+
+    const total =
+      Number(
+        data.estimated_price || 0
+      );
+
+
+    document.getElementById(
+      "totalPrice"
+    ).textContent =
+      total.toLocaleString("fa-IR");
+
+
+    document.getElementById(
+      "material"
+    ).textContent =
+      data.material || "-";
+
+
+    const details = [
+
+      [
+        "کابینت زمینی",
+        data.floor_meters,
+        data.floor_price
+      ],
+
+      [
+        "کابینت دیواری",
+        data.wall_meters,
+        data.wall_price
+      ],
+
+      [
+        "کابینت قدی",
+        data.tall_meters,
+        data.tall_price
+      ],
+
+      [
+        "جزیره",
+        data.island_meters,
+        data.island_price
+      ],
+
+      [
+        "کمد",
+        data.wardrobe_meters,
+        data.wardrobe_price
+      ]
+
+    ];
+
+
+    const detailsBox =
+      document.getElementById(
+        "priceDetails"
+      );
+
+
+    detailsBox.innerHTML = "";
+
+
+    details.forEach(item => {
+
+      const meters =
+        Number(item[1] || 0);
+
+      const price =
+        Number(item[2] || 0);
+
+
+      if (
+        meters === 0 &&
+        price === 0
+      ) {
+        return;
+      }
+
+
+      const row =
+        document.createElement("div");
+
+
+      row.className =
+        "price-row";
+
+
+      row.innerHTML = `
+        <span>
+          ${item[0]}
+          (${meters.toLocaleString("fa-IR")} متر)
+        </span>
+
+        <strong>
+          ${price.toLocaleString("fa-IR")}
+        </strong>
+      `;
+
+
+      detailsBox.appendChild(row);
+
+    });
+
+
+    document.getElementById(
+      "customerResult"
+    ).textContent =
+      data.customer_result ||
+      "نتیجه‌ای برای نمایش وجود ندارد.";
+
+
+    /*
+     * نمایش نتیجه در صفحه
+     */
+
+    document.getElementById(
+      "result"
+    ).scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "RESULT ERROR:",
+      error
+    );
+
+
+    /*
+     * اگر Workflow 3 هنوز آماده نشده،
+     * دوباره تلاش می‌کنیم.
+     */
+
+    if (attempt < 12) {
+
+      message.textContent =
+        "در حال دریافت نتیجه طراحی...";
+
+      setTimeout(
+        () =>
+          loadDesignResult(
+            customerId,
+            attempt + 1
+          ),
+        2500
+      );
+
+      return;
+
+    }
+
+
+    message.textContent =
+      "دریافت نتیجه طراحی با مشکل مواجه شد.";
+
+    message.className = "error";
+
+  }
+
+}
 
 </script>
 
 </body>
 </html>
-
