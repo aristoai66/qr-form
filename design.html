@@ -1361,13 +1361,48 @@
        */
 
       setTimeout(
-        () => loadDesignResult(customerId),
-        2500
-      );
+        async function loadDesignResult(customerId, attempt = 1) {
 
+  try {
+
+    const response = await fetch(
+      "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-result?customer_id=" +
+      encodeURIComponent(customerId)
+    );
+
+    if (!response.ok) {
+      throw new Error("Result request failed");
+    }
+
+    let data = await response.json();
+    if (Array.isArray(data)) data = data[0];
+
+    console.log("DESIGN RESULT:", data, "attempt:", attempt);
+
+    // اگه هنوز قیمت آماده نشده و بیش از حد تلاش نکردیم، دوباره امتحان کن
+    const notReady = !data || !data.estimated_price;
+
+    if (notReady && attempt < 8) {
+      setTimeout(() => loadDesignResult(customerId, attempt + 1), 2500);
+      return;
+    }
+
+    // ادامه کد نمایش نتیجه (همون بخش قبلی خودت) از اینجا به بعد بدون تغییر...
+
+  } catch (error) {
+
+    console.error(error);
+
+    if (attempt < 8) {
+      setTimeout(() => loadDesignResult(customerId, attempt + 1), 2500);
+    } else {
+      document.getElementById("message").textContent =
+        "پردازش طول کشید، لطفاً کمی بعد صفحه را رفرش کنید.";
     }
 
   }
+
+}
 
 </script>
 
