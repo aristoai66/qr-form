@@ -53,6 +53,16 @@
 
   .container{ width:100%; max-width:460px; position:relative; z-index:1; }
 
+  /* scrollbar styling — so it matches the theme instead of looking like a stray shape */
+  ::-webkit-scrollbar{ width:7px; height:7px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, var(--gold-dim), var(--gold));
+    border-radius:10px;
+  }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--gold-bright); }
+  html{ scrollbar-width:thin; scrollbar-color:var(--gold-dim) transparent; }
+
   .card{
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border-radius:var(--radius);
