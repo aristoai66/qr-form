@@ -60,6 +60,16 @@
 
   .container{ max-width:640px; margin:0 auto; position:relative; z-index:1; }
 
+  /* scrollbar styling — so it matches the theme instead of looking like a stray shape */
+  ::-webkit-scrollbar{ width:7px; height:7px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, var(--gold-dim), var(--gold));
+    border-radius:10px;
+  }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--gold-bright); }
+  html{ scrollbar-width:thin; scrollbar-color:var(--gold-dim) transparent; }
+
   /* ---------- Header / 3D logo ---------- */
 
   .header{ text-align:center; margin-bottom:30px; }
@@ -235,8 +245,8 @@
     padding:26px 15px;
     text-align:center;
     cursor:pointer;
-    transition:0.2s;
-    overflow:hidden;
+    transition:border-color 0.2s, background 0.2s, box-shadow 1.8s ease-in-out;
+    animation:uploadGlow 3.6s ease-in-out infinite;
   }
 
   .upload-box:hover{
@@ -244,18 +254,9 @@
     background:rgba(201,161,92,0.08);
   }
 
-  .upload-box::after{
-    content:"";
-    position:absolute;
-    top:-100%; left:0; right:0; height:60%;
-    background:linear-gradient(180deg, transparent, rgba(201,161,92,0.25), transparent);
-    animation:scan 3.2s linear infinite;
-    pointer-events:none;
-  }
-
-  @keyframes scan{
-    0%{ top:-60%; }
-    100%{ top:110%; }
+  @keyframes uploadGlow{
+    0%,100%{ box-shadow:0 0 0 0 rgba(201,161,92,0); }
+    50%{ box-shadow:0 0 22px 2px rgba(201,161,92,0.18); }
   }
 
   .upload-icon{ font-size:32px; margin-bottom:8px; }
@@ -367,6 +368,59 @@
   #message{ text-align:center; margin:16px 0 0; line-height:1.8; font-size:13.5px; }
   .error{ color:var(--danger); }
   .success{ color:var(--success); }
+
+  /* delayed-processing reassurance panel */
+
+  .pending-panel{
+    display:none;
+    margin-top:22px;
+    text-align:center;
+    background:radial-gradient(500px 220px at 50% -20%, rgba(201,161,92,0.14), transparent 60%), #0e0c0a;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:26px 20px;
+  }
+
+  .pending-icon{
+    font-size:34px;
+    margin-bottom:10px;
+    animation:pendingPulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pendingPulse{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%{ transform:scale(1.12); opacity:0.75; }
+  }
+
+  .pending-title{ font-size:15.5px; font-weight:800; color:var(--gold-bright); margin-bottom:8px; }
+
+  .pending-text{ font-size:13px; color:var(--text-dim); line-height:2; max-width:360px; margin:0 auto; }
+
+  .pending-actions{
+    display:flex; gap:10px; justify-content:center;
+    margin-top:18px; flex-wrap:wrap;
+  }
+
+  .pending-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:11px 18px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:700;
+    text-decoration:none;
+    border:1px solid var(--line);
+    color:var(--cream);
+    background:rgba(255,255,255,0.03);
+    transition:0.2s;
+  }
+
+  .pending-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .pending-btn.primary{
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color:#1a1305;
+    border:none;
+  }
 
   /* result */
 
@@ -559,6 +613,22 @@
     </div>
 
     <p id="message"></p>
+
+    <div id="pendingPanel" class="pending-panel">
+      <div class="pending-icon">🎨</div>
+      <div class="pending-title">طرح شما در حال آماده‌سازی نهایی است</div>
+      <div class="pending-text">
+        تحلیل هوش مصنوعی این درخواست کمی بیشتر از حد معمول طول کشیده.
+        این طرح در پرونده شما ثبت شده و تیم طراحی هم به‌صورت دستی روی آن نظارت دارد.
+        نتیجه به‌محض آماده شدن همین‌جا نمایش داده می‌شود — می‌توانید این صفحه را باز نگه دارید
+        یا بعداً دوباره با همین لینک برگردید.
+      </div>
+      <div class="pending-actions">
+        <a class="pending-btn primary" href="tel:+989121234567">📞 تماس با ما</a>
+        <a class="pending-btn" href="https://wa.me/989121234567" target="_blank" rel="noopener noreferrer">واتساپ</a>
+        <span class="pending-btn" id="retryNowBtn" style="cursor:pointer;">🔄 بررسی دوباره</span>
+      </div>
+    </div>
 
     <div id="result" class="result">
 
@@ -755,11 +825,36 @@ function setProgress(percent, text) {
 
 /* ---------- Fetch result (with retry until price is ready) ---------- */
 
+function isResultReady(data) {
+  if (!data) return false;
+  const price = Number(data.estimated_price);
+  return price > 0;
+}
+
+function showPendingPanel() {
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("message").textContent = "";
+  document.getElementById("pendingPanel").style.display = "block";
+  document.getElementById("pendingPanel").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 async function loadDesignResult(customerId, attempt) {
 
-  const maxAttempts = 10;
-  const percent = Math.min(94, Math.round((attempt / maxAttempts) * 94));
+  // مرحله سریع (هر 2.5 ثانیه): تا 10 بار = 25 ثانیه اول
+  // بعد از اون به آرومی هر 8 ثانیه ادامه می‌ده تا مجموعاً حدود 3 دقیقه صبر کنه
+  const fastPhaseLimit = 10;
+  const totalLimit = 30;
+
+  const percent = attempt <= fastPhaseLimit
+    ? Math.min(90, Math.round((attempt / fastPhaseLimit) * 90))
+    : 90;
+
   setProgress(percent, STAGES[Math.min(attempt - 1, STAGES.length - 1)]);
+
+  // بعد از فاز سریع، پنل اطمینان‌بخش رو نشون بده ولی همچنان در پس‌زمینه چک کن
+  if (attempt === fastPhaseLimit + 1) {
+    showPendingPanel();
+  }
 
   try {
 
@@ -774,23 +869,20 @@ async function loadDesignResult(customerId, attempt) {
 
     console.log("DESIGN RESULT:", data, "attempt:", attempt);
 
-    const notReady = !data || (!data.estimated_price && data.estimated_price !== 0);
+    if (!isResultReady(data)) {
 
-    if (notReady && attempt < maxAttempts) {
-      setTimeout(() => loadDesignResult(customerId, attempt + 1), 2500);
-      return;
-    }
+      if (attempt < totalLimit) {
+        const delay = attempt <= fastPhaseLimit ? 2500 : 8000;
+        setTimeout(() => loadDesignResult(customerId, attempt + 1), delay);
+        return;
+      }
 
-    if (notReady) {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("message").textContent =
-        "پردازش طول کشید، لطفاً کمی بعد صفحه را رفرش کنید.";
-      document.getElementById("message").className = "error";
-      document.getElementById("send").disabled = false;
+      // بعد از حدود 3 دقیقه، دیگه چک خودکار رو متوقف کن؛ دکمه «بررسی دوباره» می‌مونه
       return;
     }
 
     setProgress(100, "آماده شد!");
+    document.getElementById("pendingPanel").style.display = "none";
     setTimeout(() => {
       document.getElementById("loading").style.display = "none";
       showResult(data);
@@ -800,18 +892,22 @@ async function loadDesignResult(customerId, attempt) {
 
     console.error(error);
 
-    if (attempt < maxAttempts) {
-      setTimeout(() => loadDesignResult(customerId, attempt + 1), 2500);
-    } else {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("message").textContent =
-        "پردازش طول کشید، لطفاً کمی بعد صفحه را رفرش کنید.";
-      document.getElementById("message").className = "error";
-      document.getElementById("send").disabled = false;
+    if (attempt < totalLimit) {
+      const delay = attempt <= fastPhaseLimit ? 2500 : 8000;
+      setTimeout(() => loadDesignResult(customerId, attempt + 1), delay);
+    } else if (attempt === fastPhaseLimit + 1) {
+      showPendingPanel();
     }
 
   }
 }
+
+document.getElementById("retryNowBtn").addEventListener("click", () => {
+  document.getElementById("retryNowBtn").textContent = "⏳ در حال بررسی...";
+  loadDesignResult(customerId, 9999).finally(() => {
+    document.getElementById("retryNowBtn").textContent = "🔄 بررسی دوباره";
+  });
+});
 
 /* ---------- Render result ---------- */
 
