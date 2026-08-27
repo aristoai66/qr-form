@@ -764,7 +764,7 @@ async function loadDesignResult(customerId, attempt) {
   try {
 
     const response = await fetch(
-      DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId)
+    "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-result?customer_id=" + encodeURIComponent(customerId)
     );
 
     if (!response.ok) { throw new Error("Result request failed"); }
