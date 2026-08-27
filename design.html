@@ -617,8 +617,9 @@
 </div>
 
 <script>
+
 const DESIGN_REQUEST_URL = "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-request";
-const DESIGN_RESULT_URL = "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-result";
+const DESIGN_RESULT_URL  = "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/design-result";
 const CUSTOMER_DESIGNS_URL = "https://app-n8n-mpce5.apps.de1.abrhapaas.com/webhook/customer-designs";
 
 const imageInput = document.getElementById("image");
@@ -626,99 +627,50 @@ const preview = document.getElementById("preview");
 
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
-
-  if (!file) {
-    preview.style.display = "none";
-    return;
-  }
-
+  if (!file) { preview.style.display = "none"; return; }
   preview.src = URL.createObjectURL(file);
   preview.style.display = "block";
 });
 
 let customerId = new URLSearchParams(window.location.search).get("customer_id");
-
-if (customerId) {
-  customerId = customerId.trim().replace(/^=/, "");
-}
-
+if (customerId) { customerId = customerId.trim().replace(/^=/, ""); }
 
 /* ---------- Previous designs ---------- */
 
 async function loadHistory() {
-
   if (!customerId) return;
-
   try {
-
-    const res = await fetch(
-      CUSTOMER_DESIGNS_URL +
-      "?customer_id=" +
-      encodeURIComponent(customerId)
-    );
-
+    const res = await fetch(CUSTOMER_DESIGNS_URL + "?customer_id=" + encodeURIComponent(customerId));
     if (!res.ok) return;
-
     let list = await res.json();
-
-    if (!Array.isArray(list)) {
-      list = [list];
-    }
-
-    list = list.filter(
-      d => d && (d.estimated_price || d.image_url)
-    );
-
+    if (!Array.isArray(list)) list = [list];
+    list = list.filter(d => d && (d.estimated_price || d.image_url));
     if (list.length === 0) return;
 
     const wrap = document.getElementById("historyWrap");
     const scroll = document.getElementById("historyScroll");
-
     scroll.innerHTML = "";
 
     list.forEach(d => {
-
       const card = document.createElement("div");
       card.className = "history-card";
-
-      const price = Number(
-        d.estimated_price || 0
-      ).toLocaleString("fa-IR");
-
-      const date = d.created_at
-        ? new Date(d.created_at).toLocaleDateString("fa-IR")
-        : "";
-
+      const price = Number(d.estimated_price || 0).toLocaleString("fa-IR");
+      const date = d.created_at ? new Date(d.created_at).toLocaleDateString("fa-IR") : "";
       card.innerHTML =
-        '<img src="' +
-        (d.image_url || "") +
-        '" onerror="this.style.display=\'none\'">' +
-        '<div class="history-price">' +
-        price +
-        ' تومان</div>' +
-        '<div class="history-date">' +
-        date +
-        '</div>';
-
-      card.addEventListener("click", () => {
-        showResult(d);
-      });
-
+        '<img src="' + (d.image_url || "") + '" onerror="this.style.display=\'none\'">' +
+        '<div class="history-price">' + price + ' تومان</div>' +
+        '<div class="history-date">' + date + '</div>';
+      card.addEventListener("click", () => showResult(d));
       scroll.appendChild(card);
-
     });
 
     wrap.style.display = "block";
-
   } catch (e) {
-
     console.error("history error", e);
-
   }
 }
 
 loadHistory();
-
 
 /* ---------- Submit ---------- */
 
@@ -726,124 +678,67 @@ document.getElementById("send").addEventListener("click", async () => {
 
   const file = document.getElementById("image").files[0];
   const description = document.getElementById("description").value;
-
   const message = document.getElementById("message");
   const loading = document.getElementById("loading");
   const button = document.getElementById("send");
 
-  const wallLength =
-    document.getElementById("wall_length").value;
-
-  const kitchenWidth =
-    document.getElementById("kitchen_width").value;
-
-  const ceilingHeight =
-    document.getElementById("ceiling_height").value;
-
-  const dimensionsApproximate =
-    document.getElementById("dimensions_approximate").checked;
-
+  const wallLength = document.getElementById("wall_length").value;
+  const kitchenWidth = document.getElementById("kitchen_width").value;
+  const ceilingHeight = document.getElementById("ceiling_height").value;
+  const dimensionsApproximate = document.getElementById("dimensions_approximate").checked;
 
   message.textContent = "";
   message.className = "";
 
-
   if (!file) {
-
-    message.textContent =
-      "لطفاً عکس آشپزخانه را انتخاب کنید.";
-
+    message.textContent = "لطفاً عکس آشپزخانه را انتخاب کنید.";
     message.className = "error";
-
     return;
   }
-
 
   if (!customerId) {
-
-    message.textContent =
-      "شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.";
-
+    message.textContent = "شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.";
     message.className = "error";
-
     return;
   }
 
-
   const formData = new FormData();
-
   formData.append("image", file);
   formData.append("description", description);
   formData.append("customer_id", customerId);
   formData.append("wall_length", wallLength);
   formData.append("kitchen_width", kitchenWidth);
   formData.append("ceiling_height", ceilingHeight);
-  formData.append(
-    "dimensions_approximate",
-    dimensionsApproximate
-  );
-
+  formData.append("dimensions_approximate", dimensionsApproximate);
 
   button.disabled = true;
   loading.style.display = "block";
-
-  setProgress(
-    4,
-    "در حال ارسال درخواست شما..."
-  );
-
+  setProgress(4, "در حال ارسال درخواست شما...");
 
   try {
 
-    /* ارسال اطلاعات طراحی به Workflow اصلی */
+    const response = await fetch(DESIGN_REQUEST_URL, { method: "POST", body: formData });
 
-    const response = await fetch(
-      DESIGN_REQUEST_URL,
-      {
-        method: "POST",
-        body: formData
-      }
-    );
+    if (!response.ok) { throw new Error("Request failed"); }
 
-
-    if (!response.ok) {
-      throw new Error("Request failed");
-    }
-
-
-    message.textContent =
-      "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
-
+    message.textContent = "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
     message.className = "success";
-
-
-    /* شروع بررسی نتیجه از Workflow 3 */
 
     loadDesignResult(customerId, 1);
 
-
   } catch (error) {
-
     console.error(error);
-
-    message.textContent =
-      "خطا در اتصال به سرور.";
-
+    message.textContent = "خطا در اتصال به سرور.";
     message.className = "error";
-
     loading.style.display = "none";
-
     button.disabled = false;
-
   }
 
 });
 
-
 /* ---------- Progress bar ---------- */
 
 const STAGES = [
-
   "در حال آپلود عکس...",
   "در حال تحلیل فضای آشپزخانه با هوش مصنوعی...",
   "در حال شناسایی متریال و سبک...",
@@ -851,383 +746,127 @@ const STAGES = [
   "در حال برآورد قیمت اجرا...",
   "در حال آماده‌سازی طرح نهایی...",
   "چند لحظه دیگر آماده می‌شود..."
-
 ];
 
-
 function setProgress(percent, text) {
-
-  document.getElementById("progressFill").style.width =
-    percent + "%";
-
-  if (text) {
-
-    document.getElementById("loadingText").textContent =
-      text;
-
-  }
-
+  document.getElementById("progressFill").style.width = percent + "%";
+  if (text) document.getElementById("loadingText").textContent = text;
 }
 
-
-/* ---------- Fetch result ---------- */
+/* ---------- Fetch result (with retry until price is ready) ---------- */
 
 async function loadDesignResult(customerId, attempt) {
 
   const maxAttempts = 10;
-
-  const percent = Math.min(
-    94,
-    Math.round((attempt / maxAttempts) * 94)
-  );
-
-  setProgress(
-    percent,
-    STAGES[
-      Math.min(
-        attempt - 1,
-        STAGES.length - 1
-      )
-    ]
-  );
-
+  const percent = Math.min(94, Math.round((attempt / maxAttempts) * 94));
+  setProgress(percent, STAGES[Math.min(attempt - 1, STAGES.length - 1)]);
 
   try {
 
-    /*
-     * Workflow 3
-     * GET /webhook/design-result?customer_id=XXXX
-     */
-
     const response = await fetch(
-      DESIGN_RESULT_URL +
-      "?customer_id=" +
-      encodeURIComponent(customerId)
+      DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId)
     );
 
-
-    if (!response.ok) {
-
-      throw new Error(
-        "Result request failed: " +
-        response.status
-      );
-
-    }
-
+    if (!response.ok) { throw new Error("Result request failed"); }
 
     let data = await response.json();
+    if (Array.isArray(data)) data = data[0];
 
+    console.log("DESIGN RESULT:", data, "attempt:", attempt);
 
-    if (Array.isArray(data)) {
-      data = data[0];
-    }
-
-
-    console.log(
-      "DESIGN RESULT:",
-      data,
-      "attempt:",
-      attempt
-    );
-
-
-    const notReady =
-      !data ||
-      (
-        !data.estimated_price &&
-        data.estimated_price !== 0
-      );
-
+    const notReady = !data || (!data.estimated_price && data.estimated_price !== 0);
 
     if (notReady && attempt < maxAttempts) {
-
-      setTimeout(
-        () => loadDesignResult(
-          customerId,
-          attempt + 1
-        ),
-        2500
-      );
-
+      setTimeout(() => loadDesignResult(customerId, attempt + 1), 2500);
       return;
     }
-
 
     if (notReady) {
-
-      document.getElementById(
-        "loading"
-      ).style.display = "none";
-
-
-      document.getElementById(
-        "message"
-      ).textContent =
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("message").textContent =
         "پردازش طول کشید، لطفاً کمی بعد صفحه را رفرش کنید.";
-
-
-      document.getElementById(
-        "message"
-      ).className = "error";
-
-
-      document.getElementById(
-        "send"
-      ).disabled = false;
-
-
+      document.getElementById("message").className = "error";
+      document.getElementById("send").disabled = false;
       return;
     }
 
-
-    setProgress(
-      100,
-      "آماده شد!"
-    );
-
-
+    setProgress(100, "آماده شد!");
     setTimeout(() => {
-
-      document.getElementById(
-        "loading"
-      ).style.display = "none";
-
-
+      document.getElementById("loading").style.display = "none";
       showResult(data);
-
     }, 400);
-
 
   } catch (error) {
 
-    console.error(
-      "DESIGN RESULT ERROR:",
-      error
-    );
-
+    console.error(error);
 
     if (attempt < maxAttempts) {
-
-      setTimeout(
-        () => loadDesignResult(
-          customerId,
-          attempt + 1
-        ),
-        2500
-      );
-
+      setTimeout(() => loadDesignResult(customerId, attempt + 1), 2500);
     } else {
-
-      document.getElementById(
-        "loading"
-      ).style.display = "none";
-
-
-      document.getElementById(
-        "message"
-      ).textContent =
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("message").textContent =
         "پردازش طول کشید، لطفاً کمی بعد صفحه را رفرش کنید.";
-
-
-      document.getElementById(
-        "message"
-      ).className = "error";
-
-
-      document.getElementById(
-        "send"
-      ).disabled = false;
-
+      document.getElementById("message").className = "error";
+      document.getElementById("send").disabled = false;
     }
 
   }
-
 }
-
 
 /* ---------- Render result ---------- */
 
 function showResult(data) {
 
-  document.getElementById(
-    "result"
-  ).style.display = "block";
+  document.getElementById("result").style.display = "block";
 
+  const floorPrice = Number(data.floor_price || 0);
+  const wallPrice = Number(data.wall_price || 0);
+  const tallPrice = Number(data.tall_price || 0);
+  const islandPrice = Number(data.island_price || 0);
+  const wardrobePrice = Number(data.wardrobe_price || 0);
 
-  const floorPrice =
-    Number(data.floor_price || 0);
+  const cabinetTotal = floorPrice + wallPrice + tallPrice + islandPrice + wardrobePrice;
+  const installationPrice = cabinetTotal * 0.15;
+  const finalTotal = cabinetTotal + installationPrice;
 
-  const wallPrice =
-    Number(data.wall_price || 0);
-
-  const tallPrice =
-    Number(data.tall_price || 0);
-
-  const islandPrice =
-    Number(data.island_price || 0);
-
-  const wardrobePrice =
-    Number(data.wardrobe_price || 0);
-
-
-  const cabinetTotal =
-    floorPrice +
-    wallPrice +
-    tallPrice +
-    islandPrice +
-    wardrobePrice;
-
-
-  const installationPrice =
-    cabinetTotal * 0.15;
-
-
-  const finalTotal =
-    cabinetTotal +
-    installationPrice;
-
-
-  document.getElementById(
-    "totalPrice"
-  ).textContent =
-    Math.round(finalTotal)
-      .toLocaleString("fa-IR");
-
-
-  document.getElementById(
-    "material"
-  ).textContent =
-    data.material || "-";
-
+  document.getElementById("totalPrice").textContent = Math.round(finalTotal).toLocaleString("fa-IR");
+  document.getElementById("material").textContent = data.material || "-";
 
   const details = [
-
-    [
-      "کابینت زمینی",
-      data.floor_meters,
-      data.floor_price
-    ],
-
-    [
-      "کابینت دیواری",
-      data.wall_meters,
-      data.wall_price
-    ],
-
-    [
-      "کابینت قدی",
-      data.tall_meters,
-      data.tall_price
-    ],
-
-    [
-      "جزیره",
-      data.island_meters,
-      data.island_price
-    ],
-
-    [
-      "کمد",
-      data.wardrobe_meters,
-      data.wardrobe_price
-    ]
-
+    ["کابینت زمینی", data.floor_meters, data.floor_price],
+    ["کابینت دیواری", data.wall_meters, data.wall_price],
+    ["کابینت قدی", data.tall_meters, data.tall_price],
+    ["جزیره", data.island_meters, data.island_price],
+    ["کمد", data.wardrobe_meters, data.wardrobe_price]
   ];
 
-
-  const detailsBox =
-    document.getElementById(
-      "priceDetails"
-    );
-
-
+  const detailsBox = document.getElementById("priceDetails");
   detailsBox.innerHTML = "";
 
-
   details.forEach(item => {
+    const meters = Number(item[1] || 0);
+    const price = Number(item[2] || 0);
+    if (meters === 0 && price === 0) return;
 
-    const meters =
-      Number(item[1] || 0);
-
-    const price =
-      Number(item[2] || 0);
-
-
-    if (
-      meters === 0 &&
-      price === 0
-    ) {
-      return;
-    }
-
-
-    const row =
-      document.createElement("div");
-
-
-    row.className =
-      "price-row";
-
-
+    const row = document.createElement("div");
+    row.className = "price-row";
     row.innerHTML =
-      "<span>" +
-      item[0] +
-      " (" +
-      meters.toLocaleString("fa-IR") +
-      " متر)</span>" +
-
-      "<strong>" +
-      price.toLocaleString("fa-IR") +
-      "</strong>";
-
-
+      "<span>" + item[0] + " (" + meters.toLocaleString("fa-IR") + " متر)</span>" +
+      "<strong>" + price.toLocaleString("fa-IR") + "</strong>";
     detailsBox.appendChild(row);
-
   });
 
+  document.getElementById("cabinetTotal").textContent = Math.round(cabinetTotal).toLocaleString("fa-IR") + " تومان";
+  document.getElementById("installationPrice").textContent = Math.round(installationPrice).toLocaleString("fa-IR") + " تومان";
+  document.getElementById("finalTotal").textContent = Math.round(finalTotal).toLocaleString("fa-IR") + " تومان";
 
-  document.getElementById(
-    "cabinetTotal"
-  ).textContent =
-    Math.round(cabinetTotal)
-      .toLocaleString("fa-IR") +
-    " تومان";
+  document.getElementById("customerResult").textContent =
+    data.customer_result || data.ai_result || "نتیجه‌ای برای نمایش وجود ندارد.";
 
-
-  document.getElementById(
-    "installationPrice"
-  ).textContent =
-    Math.round(installationPrice)
-      .toLocaleString("fa-IR") +
-    " تومان";
-
-
-  document.getElementById(
-    "finalTotal"
-  ).textContent =
-    Math.round(finalTotal)
-      .toLocaleString("fa-IR") +
-    " تومان";
-
-
-  document.getElementById(
-    "customerResult"
-  ).textContent =
-    data.customer_result ||
-    data.ai_result ||
-    "نتیجه‌ای برای نمایش وجود ندارد.";
-
-
-  document.getElementById(
-    "result"
-  ).scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
+  document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 </script>
+
 </body>
 </html>
