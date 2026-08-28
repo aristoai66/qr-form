@@ -863,9 +863,6 @@ async function loadDesignResult(customerId, attempt) {
     );
 
     if (!response.ok) { throw new Error("Result request failed"); }
-
-const responseData = await response.json();
-console.log("DESIGN REQUEST RESPONSE:", responseData);
     
     let data = await response.json();
     if (Array.isArray(data)) data = data[0];
