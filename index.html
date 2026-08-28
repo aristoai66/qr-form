@@ -268,7 +268,9 @@ leadForm.addEventListener("submit", async function (e) {
   const button = document.getElementById("submitBtn");
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phone").value.trim();
+  const source = new URLSearchParams(window.location.search).get("source") || "direct";
 
+  
   result.textContent = "";
   result.className = "";
 
@@ -289,7 +291,7 @@ leadForm.addEventListener("submit", async function (e) {
     const response = await fetch(LOGIN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, phone: phone })
+      body: JSON.stringify({ name: name, phone: phone, source: source })
     });
 
     if (!response.ok) { throw new Error("ارسال ناموفق بود"); }
