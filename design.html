@@ -705,6 +705,8 @@ imageInput.addEventListener("change", () => {
 let customerId = new URLSearchParams(window.location.search).get("customer_id");
 if (customerId) { customerId = customerId.trim().replace(/^=/, ""); }
 
+let lastDesignId = null;
+
 /* ---------- Previous designs ---------- */
 
 async function loadHistory() {
@@ -791,10 +793,17 @@ document.getElementById("send").addEventListener("click", async () => {
 
     if (!response.ok) { throw new Error("Request failed"); }
 
+    let requestData = null;
+    try { requestData = await response.json(); } catch (e) { requestData = null; }
+
+    const newDesignId = requestData && requestData.design_id ? requestData.design_id : null;
+    console.log("NEW DESIGN ID:", newDesignId);
+    lastDesignId = newDesignId;
+
     message.textContent = "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
     message.className = "success";
 
-    loadDesignResult(customerId, 1);
+    loadDesignResult(customerId, 1, newDesignId);
 
   } catch (error) {
     console.error(error);
@@ -838,7 +847,7 @@ function showPendingPanel() {
   document.getElementById("pendingPanel").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-async function loadDesignResult(customerId, attempt) {
+async function loadDesignResult(customerId, attempt, designId) {
 
   // مرحله سریع (هر 2.5 ثانیه): تا 10 بار = 25 ثانیه اول
   // بعد از اون به آرومی هر 8 ثانیه ادامه می‌ده تا مجموعاً حدود 3 دقیقه صبر کنه
@@ -858,12 +867,13 @@ async function loadDesignResult(customerId, attempt) {
 
   try {
 
-    const response = await fetch(
-      DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId)
-    );
+    let url = DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId);
+    if (designId) { url += "&design_id=" + encodeURIComponent(designId); }
+
+    const response = await fetch(url);
 
     if (!response.ok) { throw new Error("Result request failed"); }
-    
+
     let data = await response.json();
     if (Array.isArray(data)) data = data[0];
 
@@ -873,7 +883,7 @@ async function loadDesignResult(customerId, attempt) {
 
       if (attempt < totalLimit) {
         const delay = attempt <= fastPhaseLimit ? 2500 : 8000;
-        setTimeout(() => loadDesignResult(customerId, attempt + 1), delay);
+        setTimeout(() => loadDesignResult(customerId, attempt + 1, designId), delay);
         return;
       }
 
@@ -894,7 +904,7 @@ async function loadDesignResult(customerId, attempt) {
 
     if (attempt < totalLimit) {
       const delay = attempt <= fastPhaseLimit ? 2500 : 8000;
-      setTimeout(() => loadDesignResult(customerId, attempt + 1), delay);
+      setTimeout(() => loadDesignResult(customerId, attempt + 1, designId), delay);
     } else if (attempt === fastPhaseLimit + 1) {
       showPendingPanel();
     }
@@ -904,7 +914,7 @@ async function loadDesignResult(customerId, attempt) {
 
 document.getElementById("retryNowBtn").addEventListener("click", () => {
   document.getElementById("retryNowBtn").textContent = "⏳ در حال بررسی...";
-  loadDesignResult(customerId, 9999).finally(() => {
+  loadDesignResult(customerId, 9999, lastDesignId).finally(() => {
     document.getElementById("retryNowBtn").textContent = "🔄 بررسی دوباره";
   });
 });
