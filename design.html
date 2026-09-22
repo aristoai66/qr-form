@@ -312,6 +312,34 @@
 
   .approx-box input{ width:auto; margin-left:8px; vertical-align:middle; accent-color:var(--gold); }
 
+  /* questionnaire — photo mode + design preferences */
+
+  .pref-group{ margin-top:16px; }
+
+  .option-grid{ display:flex; flex-wrap:wrap; gap:8px; }
+
+  .option-pill{ position:relative; display:inline-flex; align-items:center; cursor:pointer; }
+
+  .option-pill input{ position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
+
+  .option-pill span{
+    display:inline-block;
+    padding:9px 13px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.03);
+    color:var(--text-dim);
+    font-size:12.5px;
+    transition:0.15s;
+  }
+
+  .option-pill input:checked + span{
+    border-color:var(--gold);
+    color:var(--gold-bright);
+    background:rgba(201,161,92,0.10);
+    box-shadow:0 0 0 3px rgba(201,161,92,0.10);
+  }
+
   /* button */
 
   .main-button{
@@ -605,6 +633,75 @@
       </div>
     </div>
 
+    <div class="section">
+      <div class="section-title"><span class="num">04</span> حالت عکس و ترجیحات طراحی</div>
+
+      <div class="pref-group">
+        <label class="field-label">حالت عکس ارسالی</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="input_mode" value="raw"><span>عکس خام (بدون کابینت)</span></label>
+          <label class="option-pill"><input type="radio" name="input_mode" value="existing" checked><span>دارای کابینت</span></label>
+        </div>
+      </div>
+
+      <div class="pref-group">
+        <label class="field-label">سبک طراحی</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="pref_style" value="مدرن" checked><span>مدرن</span></label>
+          <label class="option-pill"><input type="radio" name="pref_style" value="نئوکلاسیک"><span>نئوکلاسیک</span></label>
+          <label class="option-pill"><input type="radio" name="pref_style" value="کلاسیک"><span>کلاسیک</span></label>
+          <label class="option-pill"><input type="radio" name="pref_style" value="مینیمال"><span>مینیمال</span></label>
+        </div>
+      </div>
+
+      <div class="pref-group">
+        <label class="field-label">متریال</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="pref_material" value="انزو"><span>انزو</span></label>
+          <label class="option-pill"><input type="radio" name="pref_material" value="نئوکلاسیک پلی اورتان"><span>نئوکلاسیک پلی اورتان</span></label>
+          <label class="option-pill"><input type="radio" name="pref_material" value="نئوکلاسیک ممبران"><span>نئوکلاسیک ممبران</span></label>
+          <label class="option-pill"><input type="radio" name="pref_material" value="مدرن سوپر مات" checked><span>مدرن سوپر مات</span></label>
+          <label class="option-pill"><input type="radio" name="pref_material" value="مدرن هایگلاس"><span>مدرن هایگلاس</span></label>
+        </div>
+      </div>
+
+      <div class="pref-group">
+        <label class="field-label">رنگ و زمینه</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="pref_color" value="روشن" checked><span>روشن</span></label>
+          <label class="option-pill"><input type="radio" name="pref_color" value="تیره"><span>تیره</span></label>
+          <label class="option-pill"><input type="radio" name="pref_color" value="چوبی"><span>چوبی</span></label>
+          <label class="option-pill"><input type="radio" name="pref_color" value="سفید"><span>سفید</span></label>
+          <label class="option-pill"><input type="radio" name="pref_color" value="دو رنگ"><span>دو رنگ</span></label>
+        </div>
+      </div>
+
+      <div class="pref-group">
+        <label class="field-label">نوع دستگیره</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="pref_handle" value="بدون دستگیره (مخفی)" checked><span>بدون دستگیره (مخفی)</span></label>
+          <label class="option-pill"><input type="radio" name="pref_handle" value="میلهای"><span>میلهای</span></label>
+          <label class="option-pill"><input type="radio" name="pref_handle" value="کلاسیک"><span>کلاسیک</span></label>
+        </div>
+      </div>
+
+      <div class="pref-group">
+        <label class="field-label">کابینت قدی</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="pref_tall" value="خیر" checked><span>خیر</span></label>
+          <label class="option-pill"><input type="radio" name="pref_tall" value="بله"><span>بله</span></label>
+        </div>
+      </div>
+
+      <div class="pref-group">
+        <label class="field-label">جزیره یا شبه‌جزیره</label>
+        <div class="option-grid">
+          <label class="option-pill"><input type="radio" name="pref_island" value="خیر" checked><span>خیر</span></label>
+          <label class="option-pill"><input type="radio" name="pref_island" value="بله"><span>بله</span></label>
+        </div>
+      </div>
+    </div>
+
     <button id="send" class="main-button">✨ طراحی و برآورد رایگان با هوش مصنوعی</button>
 
     <div id="loading">
@@ -707,6 +804,12 @@ if (customerId) { customerId = customerId.trim().replace(/^=/, ""); }
 
 let lastDesignId = null;
 
+/* read the selected option of a radio group (with a safe default) */
+function getRadio(name, fallback) {
+  const el = document.querySelector('input[name="' + name + '"]:checked');
+  return el ? el.value : fallback;
+}
+
 /* ---------- Previous designs ---------- */
 
 async function loadHistory() {
@@ -782,6 +885,15 @@ document.getElementById("send").addEventListener("click", async () => {
   formData.append("kitchen_width", kitchenWidth);
   formData.append("ceiling_height", ceilingHeight);
   formData.append("dimensions_approximate", dimensionsApproximate);
+
+  // design preferences (questionnaire)
+  formData.append("input_mode", getRadio("input_mode", "raw"));
+  formData.append("pref_style", getRadio("pref_style", "مدرن"));
+  formData.append("pref_material", getRadio("pref_material", "مدرن سوپر مات"));
+  formData.append("pref_color", getRadio("pref_color", "روشن"));
+  formData.append("pref_handle", getRadio("pref_handle", "بدون دستگیره (مخفی)"));
+  formData.append("pref_tall", getRadio("pref_tall", "خیر"));
+  formData.append("pref_island", getRadio("pref_island", "خیر"));
 
   button.disabled = true;
   loading.style.display = "block";
