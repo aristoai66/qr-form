@@ -507,6 +507,38 @@
     color:var(--text-dim);
   }
 
+  /* ---------- AI design image ---------- */
+
+  .design-image-wrap{
+    margin-top:18px;
+    border-radius:16px;
+    background:rgba(201,161,92,0.06);
+    border:1px solid var(--line);
+    padding:14px;
+  }
+
+  .design-image-title{
+    font-size:13.5px;
+    font-weight:800;
+    color:var(--gold-bright);
+    margin-bottom:10px;
+  }
+
+  #designImage{
+    width:100%;
+    border-radius:12px;
+    display:block;
+    border:1px solid var(--line);
+  }
+
+  .design-image-status{
+    font-size:12.5px;
+    color:var(--text-dim);
+    line-height:2;
+    text-align:center;
+    padding:6px 2px;
+  }
+
   /* social — icon-only 3D badges */
 
   .social-title{ text-align:center; margin-top:24px; margin-bottom:14px; font-size:12.5px; color:var(--text-dim); }
@@ -749,6 +781,12 @@
 
       <div id="customerResult" class="customer-result"></div>
 
+      <div id="designImageWrap" class="design-image-wrap" style="display:none;">
+        <div class="design-image-title">🎨 طرح پیشنهادی هوش مصنوعی</div>
+        <img id="designImage" alt="طرح پیشنهادی کابینت" style="display:none;">
+        <div id="designImageStatus" class="design-image-status"></div>
+      </div>
+
       <div class="social-title">برای ارتباط و مشاوره سریع با ما در ارتباط باشید</div>
 
       <div class="social-row">
@@ -788,6 +826,7 @@
 const DESIGN_REQUEST_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/design-request";
 const DESIGN_RESULT_URL  = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/design-result";
 const CUSTOMER_DESIGNS_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/customer-designs";
+const AI_DESIGN_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/ai-design";
 
 const imageInput = document.getElementById("image");
 const preview = document.getElementById("preview");
@@ -835,7 +874,7 @@ async function loadHistory() {
         '<img src="' + (d.image_url || "") + '" onerror="this.style.display=\'none\'">' +
         '<div class="history-price">' + price + ' تومان</div>' +
         '<div class="history-date">' + date + '</div>';
-      card.addEventListener("click", () => showResult(d));
+      card.addEventListener("click", () => showResult(d, d.id));
       scroll.appendChild(card);
     });
 
@@ -897,7 +936,7 @@ document.getElementById("send").addEventListener("click", async () => {
 
   button.disabled = true;
   loading.style.display = "block";
-  setProgress(4, "در حال ارسال درخواست شما...");
+  startProgress();
 
   try {
 
@@ -915,12 +954,15 @@ document.getElementById("send").addEventListener("click", async () => {
     message.textContent = "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
     message.className = "success";
 
+    // هر دو درخواست موازی: قیمت/توضیحات + تولید تصویر AI
+    triggerAiDesign(customerId, newDesignId);
     loadDesignResult(customerId, 1, newDesignId);
 
   } catch (error) {
     console.error(error);
     message.textContent = "خطا در اتصال به سرور.";
     message.className = "error";
+    if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
     loading.style.display = "none";
     button.disabled = false;
   }
@@ -942,6 +984,91 @@ const STAGES = [
 function setProgress(percent, text) {
   document.getElementById("progressFill").style.width = percent + "%";
   if (text) document.getElementById("loadingText").textContent = text;
+}
+
+let progressTimer = null;
+
+/* نوار پیشرفت پیوسته و زمان‌محور (تا ~۹۵٪ در حدود ۱۰۰ ثانیه) */
+function startProgress() {
+  if (progressTimer) return;
+  const startTime = Date.now();
+  const duration = 100000;
+  setProgress(4, STAGES[0]);
+  progressTimer = setInterval(() => {
+    const ratio = Math.min((Date.now() - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - ratio, 2); // ease-out
+    const percent = 4 + eased * (95 - 4);
+    const stage = Math.min(Math.floor(ratio * (STAGES.length - 1)), STAGES.length - 1);
+    setProgress(percent, STAGES[stage]);
+  }, 500);
+}
+
+function finishProgress(text) {
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+  setProgress(100, text || "آماده شد!");
+}
+
+/* ---------- تصویر طراحی AI ---------- */
+
+function setDesignImage(url) {
+  const wrap = document.getElementById("designImageWrap");
+  const img = document.getElementById("designImage");
+  const status = document.getElementById("designImageStatus");
+  if (!wrap || !img) return;
+  img.src = url;
+  img.style.display = "block";
+  if (status) status.textContent = "";
+  wrap.style.display = "block";
+}
+
+/* فراخوانی موازی webhook تولید تصویر (بدون انتظار برای پاسخ کامل) */
+async function triggerAiDesign(cid, designId) {
+  if (!designId) return;
+  try {
+    const res = await fetch(AI_DESIGN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id: cid, design_id: designId })
+    });
+    try {
+      const d = await res.json();
+      if (d && d.ai_design_url) { setDesignImage(d.ai_design_url); }
+    } catch (e) {}
+  } catch (e) {
+    console.error("ai-design trigger error", e);
+  }
+}
+
+/* پول کردن جداگانه برای رسیدن ai_design_url (بدون رفرش صفحه) */
+async function pollDesignImage(designId, attempt) {
+  const wrap = document.getElementById("designImageWrap");
+  const status = document.getElementById("designImageStatus");
+  if (!wrap) return;
+
+  const maxAttempts = 36; // ~۳ دقیقه (هر ۵ ثانیه)
+  if (!designId) {
+    if (status) status.textContent = "شناسه طراحی پیدا نشد.";
+    return;
+  }
+  if (attempt > maxAttempts) {
+    if (status) status.textContent =
+      "آماده‌سازی طرح کمی طول کشیده است. این طرح در پرونده شما ثبت شده و بعداً می‌توانید همین صفحه را دوباره باز کنید.";
+    return;
+  }
+
+  try {
+    const url = DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId) + "&design_id=" + encodeURIComponent(designId);
+    const res = await fetch(url);
+    if (res.ok) {
+      let d = await res.json();
+      if (Array.isArray(d)) d = d[0];
+      if (d && d.ai_design_url) { setDesignImage(d.ai_design_url); return; }
+    }
+  } catch (e) {
+    console.error("image poll error", e);
+  }
+
+  setTimeout(() => pollDesignImage(designId, attempt + 1), 5000);
 }
 
 /* ---------- Fetch result (with retry until price is ready) ---------- */
@@ -966,17 +1093,6 @@ async function loadDesignResult(customerId, attempt, designId) {
   const fastPhaseLimit = 10;
   const totalLimit = 30;
 
-  const percent = attempt <= fastPhaseLimit
-    ? Math.min(90, Math.round((attempt / fastPhaseLimit) * 90))
-    : 90;
-
-  setProgress(percent, STAGES[Math.min(attempt - 1, STAGES.length - 1)]);
-
-  // بعد از فاز سریع، پنل اطمینان‌بخش رو نشون بده ولی همچنان در پس‌زمینه چک کن
-  if (attempt === fastPhaseLimit + 1) {
-    showPendingPanel();
-  }
-
   try {
 
     let url = DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId);
@@ -999,15 +1115,15 @@ async function loadDesignResult(customerId, attempt, designId) {
         return;
       }
 
-      // بعد از حدود 3 دقیقه، دیگه چک خودکار رو متوقف کن؛ دکمه «بررسی دوباره» می‌مونه
+      // بعد از حدود 3 دقیقه، چک خودکار قیمت متوقف می‌شود
+      setProgress(95, "محاسبه کمی طول کشیده است...");
       return;
     }
 
-    setProgress(100, "آماده شد!");
-    document.getElementById("pendingPanel").style.display = "none";
+    finishProgress("آماده شد!");
     setTimeout(() => {
       document.getElementById("loading").style.display = "none";
-      showResult(data);
+      showResult(data, designId);
     }, 400);
 
   } catch (error) {
@@ -1017,8 +1133,8 @@ async function loadDesignResult(customerId, attempt, designId) {
     if (attempt < totalLimit) {
       const delay = attempt <= fastPhaseLimit ? 2500 : 8000;
       setTimeout(() => loadDesignResult(customerId, attempt + 1, designId), delay);
-    } else if (attempt === fastPhaseLimit + 1) {
-      showPendingPanel();
+    } else {
+      setProgress(95, "ارتباط با سرور برقرار نشد.");
     }
 
   }
@@ -1033,7 +1149,7 @@ document.getElementById("retryNowBtn").addEventListener("click", () => {
 
 /* ---------- Render result ---------- */
 
-function showResult(data) {
+function showResult(data, designId) {
 
   document.getElementById("result").style.display = "block";
 
@@ -1080,6 +1196,21 @@ function showResult(data) {
 
   document.getElementById("customerResult").textContent =
     data.customer_result || data.ai_result || "نتیجه‌ای برای نمایش وجود ندارد.";
+
+  // بخش تصویر طراحی AI — بدون رفرش؛ اگر آماده نیست، در پس‌زمینه پول می‌شود
+  const imgWrap = document.getElementById("designImageWrap");
+  const imgStatus = document.getElementById("designImageStatus");
+  if (imgWrap) {
+    imgWrap.style.display = "block";
+    if (data && data.ai_design_url) {
+      setDesignImage(data.ai_design_url);
+    } else {
+      const img = document.getElementById("designImage");
+      if (img) img.style.display = "none";
+      if (imgStatus) imgStatus.textContent = "طرح پیشنهادی هوش مصنوعی در حال آماده‌سازی است...";
+      pollDesignImage(designId || lastDesignId, 1);
+    }
+  }
 
   document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
