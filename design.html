@@ -1280,8 +1280,7 @@ document.getElementById("send").addEventListener("click", async () => {
     message.textContent = "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
     message.className = "success";
 
-    // سه کار موازی: تولید تصویر (08) + پول مستقل تصویر + پول قیمت
-    triggerAiDesign(customerId, newDesignId);
+    // دو کار موازی: پول مستقل تصویر + پول قیمت (WF02 خودش از طریق Call AI Design، WF08 را اجرا می‌کند)
     startImagePolling(newDesignId);
     loadDesignResult(customerId, 1, newDesignId);
 
@@ -1332,13 +1331,15 @@ function finishProgress(text) {
 }
 
 /* پایان/توقف Loading و آزادکردن دکمه (در timeout/error/پایان) */
-function endLoading(messageText, isError) {
+function endLoading(messageText, isError, keepDisabled) {
   if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
   const loading = document.getElementById("loading");
   if (loading) loading.style.display = "none";
-  const button = document.getElementById("send");
-  if (button) button.disabled = false;
-  isSubmitting = false;
+  if (!keepDisabled) {
+    const button = document.getElementById("send");
+    if (button) button.disabled = false;
+    isSubmitting = false;
+  }
   if (messageText !== undefined && messageText !== null) {
     const message = document.getElementById("message");
     if (message) {
@@ -1362,24 +1363,6 @@ function setDesignImage(url) {
   // نمایش فوری ناحیه نتیجه (مستقل از آماده‌بودن قیمت)
   const result = document.getElementById("result");
   if (result) result.style.display = "block";
-}
-
-/* فراخوانی موازی webhook تولید تصویر (بدون انتظار برای پاسخ کامل) */
-async function triggerAiDesign(cid, designId) {
-  if (!designId) return;
-  try {
-    const res = await fetch(AI_DESIGN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ customer_id: cid, design_id: designId })
-    });
-    try {
-      const d = await res.json();
-      if (d && d.ai_design_url) { setDesignImage(d.ai_design_url); }
-    } catch (e) {}
-  } catch (e) {
-    console.error("ai-design trigger error", e);
-  }
 }
 
 /* یک پول فعال برای تصویر (هر design_id جدا؛ با شروع design جدید، پول قبلی لغو می‌شود) */
@@ -1470,7 +1453,8 @@ async function loadDesignResult(customerId, attempt, designId) {
       }
 
       // بعد از حدود 3 دقیقه: Loading متوقف می‌شود؛ تصویر (اگر آماده باشد) همان‌جا می‌ماند
-      endLoading("محاسبه قیمت کمی طول کشید. طرح (در صورت آماده‌بودن) همین‌جا نمایش داده می‌شود؛ می‌توانید بعداً همین صفحه را دوباره باز کنید.", true);
+      // دکمه طراحی آزاد نمی‌شود تا کاربر با timeout، درخواست تکراری نسازد؛ فقط از retryNowBtn استفاده کند
+      endLoading("محاسبه قیمت کمی طول کشید. طرح (در صورت آماده‌بودن) همین‌جا نمایش داده می‌شود؛ می‌توانید بعداً همین صفحه را دوباره باز کنید.", true, true);
       return;
     }
 
