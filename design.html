@@ -1115,11 +1115,28 @@ let customerId = new URLSearchParams(window.location.search).get("customer_id");
 if (customerId) { customerId = customerId.trim().replace(/^=/, ""); }
 
 let lastDesignId = null;
+let isSubmitting = false;
 
 /* read the selected option of a radio group (with a safe default) */
 function getRadio(name, fallback) {
   const el = document.querySelector('input[name="' + name + '"]:checked');
   return el ? el.value : fallback;
+}
+
+/* device_id پایدار برای هر مرورگر (فقط برای تشخیص، نه سهمیه) */
+function getDeviceId() {
+  const KEY = "hc_device_id";
+  try {
+    let id = window.localStorage.getItem(KEY);
+    if (id) return id;
+    id = (window.crypto && typeof window.crypto.randomUUID === "function")
+      ? window.crypto.randomUUID()
+      : ("dev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
+    window.localStorage.setItem(KEY, id);
+    return id;
+  } catch (e) {
+    return "dev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+  }
 }
 
 /* ---------- Previous designs ---------- */
@@ -1163,6 +1180,10 @@ loadHistory();
 
 document.getElementById("send").addEventListener("click", async () => {
 
+  // قفل فوری: قبل از هر await / Canvas / upload / request
+  if (isSubmitting) return;
+  isSubmitting = true;
+
   const file = document.getElementById("image").files[0];
   const description = document.getElementById("description").value;
   const message = document.getElementById("message");
@@ -1174,70 +1195,70 @@ document.getElementById("send").addEventListener("click", async () => {
   const ceilingHeight = document.getElementById("ceiling_height").value;
   const dimensionsApproximate = document.getElementById("dimensions_approximate").checked;
 
-  message.textContent = "";
-  message.className = "";
-
-  if (!file) {
-    message.textContent = "لطفاً عکس آشپزخانه را انتخاب کنید.";
-    message.className = "error";
-    return;
-  }
-
-  if (!customerId) {
-    message.textContent = "شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.";
-    message.className = "error";
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("image", file);
-  formData.append("description", description);
-  formData.append("customer_id", customerId);
-  formData.append("wall_length", wallLength);
-  formData.append("kitchen_width", kitchenWidth);
-  formData.append("ceiling_height", ceilingHeight);
-  formData.append("dimensions_approximate", dimensionsApproximate);
-
-  // design preferences (questionnaire)
-  formData.append("input_mode", getRadio("input_mode", "raw"));
-  formData.append("pref_style", getRadio("pref_style", "مدرن"));
-  formData.append("pref_material", getRadio("pref_material", "مدرن سوپر مات"));
-  formData.append("pref_color", getRadio("pref_color", "روشن"));
-  formData.append("pref_handle", getRadio("pref_handle", "بدون دستگیره (مخفی)"));
-  formData.append("pref_tall", getRadio("pref_tall", "خیر"));
-  formData.append("pref_island", getRadio("pref_island", "خیر"));
-
-  // pins (اختیاری) — فقط در صورت وجود حداقل یک پین
-  const pinsPayload = pins.map((p, i) => ({
-    number: i + 1,
-    label: p.label,
-    x_pct: Math.round(Math.max(0, Math.min(100, p.x_pct)) * 10) / 10,
-    y_pct: Math.round(Math.max(0, Math.min(100, p.y_pct)) * 10) / 10
-  }));
-
-  if (pinsPayload.length > 0) {
-    let annotatedUrl = "";
-    try {
-      const annotatedBlob = await buildAnnotatedImage(file, pinsPayload);
-      if (annotatedBlob) {
-        const up = await uploadAnnotatedImage(annotatedBlob);
-        if (up) annotatedUrl = up;
-      }
-    } catch (err) {
-      console.error("annotated image error", err);
-    }
-    formData.append("pins", JSON.stringify(pinsPayload));
-    formData.append("annotated_image_url", annotatedUrl || "");
-  } else {
-    formData.append("pins", "");
-    formData.append("annotated_image_url", "");
-  }
-
   button.disabled = true;
   loading.style.display = "block";
   startProgress();
+  message.textContent = "";
+  message.className = "";
 
   try {
+
+    if (!file) {
+      endLoading("لطفاً عکس آشپزخانه را انتخاب کنید.", true);
+      return;
+    }
+
+    if (!customerId) {
+      endLoading("شناسه مشتری پیدا نشد. لطفاً از صفحه اصلی وارد شوید.", true);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("description", description);
+    formData.append("customer_id", customerId);
+    formData.append("wall_length", wallLength);
+    formData.append("kitchen_width", kitchenWidth);
+    formData.append("ceiling_height", ceilingHeight);
+    formData.append("dimensions_approximate", dimensionsApproximate);
+
+    // design preferences (questionnaire)
+    formData.append("input_mode", getRadio("input_mode", "raw"));
+    formData.append("pref_style", getRadio("pref_style", "مدرن"));
+    formData.append("pref_material", getRadio("pref_material", "مدرن سوپر مات"));
+    formData.append("pref_color", getRadio("pref_color", "روشن"));
+    formData.append("pref_handle", getRadio("pref_handle", "بدون دستگیره (مخفی)"));
+    formData.append("pref_tall", getRadio("pref_tall", "خیر"));
+    formData.append("pref_island", getRadio("pref_island", "خیر"));
+
+    // device_id (فقط تشخیص؛ روی سهمیه اثر ندارد)
+    formData.append("device_id", getDeviceId());
+
+    // pins (اختیاری) — فقط در صورت وجود حداقل یک پین
+    const pinsPayload = pins.map((p, i) => ({
+      number: i + 1,
+      label: p.label,
+      x_pct: Math.round(Math.max(0, Math.min(100, p.x_pct)) * 10) / 10,
+      y_pct: Math.round(Math.max(0, Math.min(100, p.y_pct)) * 10) / 10
+    }));
+
+    if (pinsPayload.length > 0) {
+      let annotatedUrl = "";
+      try {
+        const annotatedBlob = await buildAnnotatedImage(file, pinsPayload);
+        if (annotatedBlob) {
+          const up = await uploadAnnotatedImage(annotatedBlob);
+          if (up) annotatedUrl = up;
+        }
+      } catch (err) {
+        console.error("annotated image error", err);
+      }
+      formData.append("pins", JSON.stringify(pinsPayload));
+      formData.append("annotated_image_url", annotatedUrl || "");
+    } else {
+      formData.append("pins", "");
+      formData.append("annotated_image_url", "");
+    }
 
     const response = await fetch(DESIGN_REQUEST_URL, { method: "POST", body: formData });
 
@@ -1246,6 +1267,12 @@ document.getElementById("send").addEventListener("click", async () => {
     let requestData = null;
     try { requestData = await response.json(); } catch (e) { requestData = null; }
 
+    // اگر سهمیه تمام شده بود: توقف فوری، بدون polling و بدون هیچ درخواست AI
+    if (requestData && requestData.success === false) {
+      endLoading(requestData.message || "سهمیه طراحی رایگان شما تمام شده است.", true);
+      return;
+    }
+
     const newDesignId = requestData && requestData.design_id ? requestData.design_id : null;
     console.log("NEW DESIGN ID:", newDesignId);
     lastDesignId = newDesignId;
@@ -1253,17 +1280,14 @@ document.getElementById("send").addEventListener("click", async () => {
     message.textContent = "درخواست شما با موفقیت ارسال شد. در حال آماده‌سازی نتیجه...";
     message.className = "success";
 
-    // هر دو درخواست موازی: قیمت/توضیحات + تولید تصویر AI
+    // سه کار موازی: تولید تصویر (08) + پول مستقل تصویر + پول قیمت
     triggerAiDesign(customerId, newDesignId);
+    startImagePolling(newDesignId);
     loadDesignResult(customerId, 1, newDesignId);
 
   } catch (error) {
     console.error(error);
-    message.textContent = "خطا در اتصال به سرور.";
-    message.className = "error";
-    if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
-    loading.style.display = "none";
-    button.disabled = false;
+    endLoading("خطا در اتصال به سرور.", true);
   }
 
 });
@@ -1307,6 +1331,23 @@ function finishProgress(text) {
   setProgress(100, text || "آماده شد!");
 }
 
+/* پایان/توقف Loading و آزادکردن دکمه (در timeout/error/پایان) */
+function endLoading(messageText, isError) {
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+  const loading = document.getElementById("loading");
+  if (loading) loading.style.display = "none";
+  const button = document.getElementById("send");
+  if (button) button.disabled = false;
+  isSubmitting = false;
+  if (messageText !== undefined && messageText !== null) {
+    const message = document.getElementById("message");
+    if (message) {
+      message.textContent = messageText;
+      message.className = isError ? "error" : "success";
+    }
+  }
+}
+
 /* ---------- تصویر طراحی AI ---------- */
 
 function setDesignImage(url) {
@@ -1318,6 +1359,9 @@ function setDesignImage(url) {
   img.style.display = "block";
   if (status) status.textContent = "";
   wrap.style.display = "block";
+  // نمایش فوری ناحیه نتیجه (مستقل از آماده‌بودن قیمت)
+  const result = document.getElementById("result");
+  if (result) result.style.display = "block";
 }
 
 /* فراخوانی موازی webhook تولید تصویر (بدون انتظار برای پاسخ کامل) */
@@ -1338,8 +1382,19 @@ async function triggerAiDesign(cid, designId) {
   }
 }
 
+/* یک پول فعال برای تصویر (هر design_id جدا؛ با شروع design جدید، پول قبلی لغو می‌شود) */
+let currentImageDesignId = null;
+
+function startImagePolling(designId) {
+  if (!designId) return;
+  if (currentImageDesignId === designId) return; // همین حالا در حال پول است
+  currentImageDesignId = designId;
+  pollDesignImage(designId, 1);
+}
+
 /* پول کردن جداگانه برای رسیدن ai_design_url (بدون رفرش صفحه) */
 async function pollDesignImage(designId, attempt) {
+  if (designId !== currentImageDesignId) return; // با design جدیدتر جایگزین شده
   const wrap = document.getElementById("designImageWrap");
   const status = document.getElementById("designImageStatus");
   if (!wrap) return;
@@ -1414,8 +1469,8 @@ async function loadDesignResult(customerId, attempt, designId) {
         return;
       }
 
-      // بعد از حدود 3 دقیقه، چک خودکار قیمت متوقف می‌شود
-      setProgress(95, "محاسبه کمی طول کشیده است...");
+      // بعد از حدود 3 دقیقه: Loading متوقف می‌شود؛ تصویر (اگر آماده باشد) همان‌جا می‌ماند
+      endLoading("محاسبه قیمت کمی طول کشید. طرح (در صورت آماده‌بودن) همین‌جا نمایش داده می‌شود؛ می‌توانید بعداً همین صفحه را دوباره باز کنید.", true);
       return;
     }
 
@@ -1423,6 +1478,7 @@ async function loadDesignResult(customerId, attempt, designId) {
     setTimeout(() => {
       document.getElementById("loading").style.display = "none";
       showResult(data, designId);
+      endLoading(); // آزادسازی دکمه/وضعیت (بدون تغییر پیام موفقیت)
     }, 400);
 
   } catch (error) {
@@ -1433,7 +1489,7 @@ async function loadDesignResult(customerId, attempt, designId) {
       const delay = attempt <= fastPhaseLimit ? 2500 : 8000;
       setTimeout(() => loadDesignResult(customerId, attempt + 1, designId), delay);
     } else {
-      setProgress(95, "ارتباط با سرور برقرار نشد.");
+      endLoading("ارتباط با سرور برقرار نشد. اگر طرح آماده شده باشد، همین‌جا نمایش داده می‌شود.", true);
     }
 
   }
@@ -1507,7 +1563,7 @@ function showResult(data, designId) {
       const img = document.getElementById("designImage");
       if (img) img.style.display = "none";
       if (imgStatus) imgStatus.textContent = "طرح پیشنهادی هوش مصنوعی در حال آماده‌سازی است...";
-      pollDesignImage(designId || lastDesignId, 1);
+      startImagePolling(designId || lastDesignId);
     }
   }
 
