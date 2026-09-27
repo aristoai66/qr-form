@@ -832,6 +832,11 @@
 
       <div id="customerResult" class="customer-result"></div>
 
+      <div id="retryDesignWrap" style="display:none; margin:14px 0; text-align:center;">
+        <div style="margin-bottom:8px; color:#b45309;">این طراحی ناموفق بود. می‌توانید بدون مصرف سهمیه، همین طراحی را دوباره اجرا کنید.</div>
+        <span class="pending-btn primary" id="retryDesignBtn" style="cursor:pointer; display:inline-block;">🔄 تلاش دوباره</span>
+      </div>
+
       <div id="designImageWrap" class="design-image-wrap" style="display:none;">
         <div class="design-image-title">🎨 طرح پیشنهادی هوش مصنوعی</div>
         <img id="designImage" alt="طرح پیشنهادی کابینت" style="display:none;">
@@ -1375,6 +1380,52 @@ function startImagePolling(designId) {
   pollDesignImage(designId, 1);
 }
 
+/* ---------- Retry طراحی ناموفق (همان design_id، بدون مصرف سهمیه) ---------- */
+
+function showRetryDesign(designId) {
+  const wrap = document.getElementById("retryDesignWrap");
+  if (!wrap) return;
+  if (designId) { lastDesignId = designId; }
+  window.__failedDesignId = designId || lastDesignId;
+  wrap.style.display = "block";
+}
+
+async function retryDesign() {
+  const designId = window.__failedDesignId || lastDesignId;
+  if (!designId) return;
+  const btn = document.getElementById("retryDesignBtn");
+  if (btn) btn.textContent = "⏳ در حال ارسال...";
+  try {
+    const fd = new FormData();
+    fd.append("retry_design_id", designId);
+    if (customerId) fd.append("customer_id", customerId);
+    const wl = document.getElementById("wall_length"); if (wl && wl.value) fd.append("wall_length", wl.value);
+    const kw = document.getElementById("kitchen_width"); if (kw && kw.value) fd.append("kitchen_width", kw.value);
+    const ch = document.getElementById("ceiling_height"); if (ch && ch.value) fd.append("ceiling_height", ch.value);
+
+    const res = await fetch(DESIGN_REQUEST_URL, { method: "POST", body: fd });
+    let d = null; try { d = await res.json(); } catch (e) {}
+
+    if (d && d.success) {
+      const wrap = document.getElementById("retryDesignWrap");
+      if (wrap) wrap.style.display = "none";
+      const msg = document.getElementById("message");
+      if (msg) { msg.textContent = "تلاش دوباره ارسال شد. در حال آماده‌سازی..."; msg.className = "success"; }
+      startProgress();
+      currentImageDesignId = null;
+      startImagePolling(designId);
+      loadDesignResult(customerId, 1, designId);
+    } else {
+      const msg = document.getElementById("message");
+      if (msg) { msg.textContent = (d && d.message) || "امکان تلاش دوباره نیست."; msg.className = "error"; }
+    }
+  } catch (e) {
+    console.error("retry error", e);
+  } finally {
+    if (btn) btn.textContent = "🔄 تلاش دوباره";
+  }
+}
+
 /* پول کردن جداگانه برای رسیدن ai_design_url (بدون رفرش صفحه) */
 async function pollDesignImage(designId, attempt) {
   if (designId !== currentImageDesignId) return; // با design جدیدتر جایگزین شده
@@ -1399,6 +1450,7 @@ async function pollDesignImage(designId, attempt) {
     if (res.ok) {
       let d = await res.json();
       if (Array.isArray(d)) d = d[0];
+      if (d && d.status === "failed") { showRetryDesign(designId); if (status) status.textContent = "طرح ناموفق بود."; return; }
       if (d && d.ai_design_url) { setDesignImage(d.ai_design_url); return; }
     }
   } catch (e) {
@@ -1444,6 +1496,12 @@ async function loadDesignResult(customerId, attempt, designId) {
 
     console.log("DESIGN RESULT:", data, "attempt:", attempt);
 
+    if (data && data.status === "failed") {
+      endLoading("این طراحی ناموفق بود. می‌توانید با دکمه «تلاش دوباره» همان طراحی را بدون مصرف سهمیه اجرا کنید.", true, true);
+      showRetryDesign(designId);
+      return;
+    }
+
     if (!isResultReady(data)) {
 
       if (attempt < totalLimit) {
@@ -1485,6 +1543,9 @@ document.getElementById("retryNowBtn").addEventListener("click", () => {
     document.getElementById("retryNowBtn").textContent = "🔄 بررسی دوباره";
   });
 });
+
+const retryDesignBtnEl = document.getElementById("retryDesignBtn");
+if (retryDesignBtnEl) { retryDesignBtnEl.addEventListener("click", retryDesign); }
 
 /* ---------- Render result ---------- */
 
