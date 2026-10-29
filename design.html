@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>طراحی هوشمند آشپزخانه | خانه چوبی</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 <style>
@@ -642,11 +643,65 @@
   }
 
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 
 <body>
 
-<div class="container">
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark brand-mono">چ</span>
+      <span class="brand-txt"><b>خانه چوبی</b><span>AI DESIGN STUDIO</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">صفحه اصلی</a>
+      <a href="#historyWrap">طراحی‌های من</a>
+      <a href="tel:+989121234567">مشاوره</a>
+      <a class="nav-cta" href="#section-photo">شروع طراحی</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+<section class="hero compact">
+  <div class="hero-copy reveal">
+    <span class="hero-kicker">Design Atelier</span>
+    <h1>فضای رویایی‌تان را<br>با هم بسازیم.</h1>
+    <p class="lead">
+      عکس، ابعاد و سلیقه‌ی خود را وارد کنید؛ طرح پیشنهادی و برآورد اولیه در چند دقیقه آماده می‌شود.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-gold" href="#section-photo">شروع طراحی</a>
+      <a class="btn btn-ghost" href="#historyWrap">طراحی‌های قبلی</a>
+    </div>
+  </div>
+  <div class="scene reveal" data-tilt aria-hidden="true">
+    <div class="scene-glow"></div>
+    <div class="scene-stage">
+      <div class="scene-floor"></div>
+      <div class="scene-back"></div>
+      <div class="kc kc-tall"><div class="face"></div></div>
+      <div class="kc kc-tall2"><div class="face"></div></div>
+      <div class="kc kc-low"><div class="face"></div></div>
+      <div class="kc kc-top"><div class="face"></div></div>
+      <div class="kc kc-hood"></div>
+      <div class="kc kc-island"></div>
+      <div class="pendant p1"></div>
+      <div class="pendant p2"></div>
+    </div>
+  </div>
+</section>
+
+<nav class="step-rail" aria-label="مراحل طراحی">
+  <a href="#section-photo"><b>۰۱</b> عکس</a>
+  <a href="#section-desc"><b>۰۲</b> سلیقه</a>
+  <a href="#section-dims"><b>۰۳</b> ابعاد</a>
+  <a href="#section-prefs"><b>۰۴</b> ترجیحات</a>
+</nav>
+
+<div class="container reveal">
 
   <div class="header">
     <div class="logo-stage">
@@ -669,7 +724,13 @@
     <div class="corner tl"></div>
     <div class="corner br"></div>
 
-    <div class="section">
+    <div class="card-head">
+      <span class="eyebrow">جزئیات طراحی</span>
+      <h2>آشپزخانه‌ی خود را توصیف کنید</h2>
+      <p>هرچه دقیق‌تر، نتیجه نزدیک‌تر به سلیقه‌ی شما.</p>
+    </div>
+
+    <div class="section" id="section-photo">
       <div class="section-title"><span class="num">01</span> عکس آشپزخانه</div>
       <label class="upload-box" for="image">
         <div class="upload-icon">📸</div>
@@ -690,12 +751,12 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="section-desc">
       <div class="section-title"><span class="num">02</span> سلیقه و توضیحات شما</div>
       <textarea id="description" placeholder="مثلاً: کابینت مدرن، رنگ روشن، دستگیره مخفی، جزیره داشته باشد و فضای کافی برای وسایل برقی در نظر گرفته شود..."></textarea>
     </div>
 
-    <div class="section">
+    <div class="section" id="section-dims">
       <div class="section-title"><span class="num">03</span> ابعاد تقریبی</div>
       <div class="dimensions">
         <div>
@@ -716,7 +777,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="section-prefs">
       <div class="section-title"><span class="num">04</span> حالت عکس و ترجیحات طراحی</div>
 
       <div class="pref-group">
@@ -877,15 +938,28 @@
 
 </div>
 
+<footer class="site-footer">
+  <div class="f-brand">خانه چوبی — استودیوی طراحی آشپزخانه</div>
+  <div>طراحی هوشمند، برآورد دقیق و اجرای حرفه‌ای.</div>
+  <div class="f-links">
+    <a href="index.html">صفحه اصلی</a>
+    <a href="#section-photo">شروع طراحی</a>
+    <a href="tel:+989121234567">تماس</a>
+    <a href="https://instagram.com/khanehchoobi.ir1" target="_blank" rel="noopener">اینستاگرام</a>
+  </div>
+  <div>© خانه چوبی</div>
+</footer>
+
+</main>
+
+<script src="theme.js"></script>
 <script>
 
 const DESIGN_REQUEST_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/design-request";
 const DESIGN_RESULT_URL  = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/design-result";
 const CUSTOMER_DESIGNS_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/customer-designs";
 const AI_DESIGN_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/ai-design";
-
-function hcToken() { try { return sessionStorage.getItem("hc_token") || ""; } catch (e) { return ""; } }
-function authHeaders() { const t = hcToken(); return t ? { "Authorization": "Bearer " + t } : {}; }
+const PREVIEW = new URLSearchParams(window.location.search).has("preview");
 
 // Supabase Storage — آپلود تصویر پین‌شده از فرانت‌اند.
 // «کلید عمومی (anon)» پروژه را در متغیر زیر قرار بده (این کلید برای استفاده در مرورگر طراحی شده است).
@@ -1125,6 +1199,16 @@ if (customerId) { customerId = customerId.trim().replace(/^=/, ""); }
 let lastDesignId = null;
 let isSubmitting = false;
 
+/* ---------- session token helpers ---------- */
+function hcToken() { try { return sessionStorage.getItem("hc_token") || ""; } catch (e) { return ""; } }
+function authHeaders() { const t = hcToken(); return t ? { "Authorization": "Bearer " + t } : {}; }
+function handleUnauthorized() {
+  try { sessionStorage.removeItem("hc_token"); } catch (e) {}
+  const message = document.getElementById("message");
+  if (message) { message.textContent = "نشست شما منقضی یا نامعتبر است. لطفاً دوباره وارد شوید."; message.className = "error"; }
+  setTimeout(function () { window.location.href = "index.html"; }, 1200);
+}
+
 /* read the selected option of a radio group (with a safe default) */
 function getRadio(name, fallback) {
   const el = document.querySelector('input[name="' + name + '"]:checked');
@@ -1152,28 +1236,42 @@ function getDeviceId() {
 async function loadHistory() {
   if (!customerId) return;
   try {
-    const res = await fetch(CUSTOMER_DESIGNS_URL + "?customer_id=" + encodeURIComponent(customerId), { headers: authHeaders() });
-    if (res.status === 401 || res.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
+    const res = await fetch(CUSTOMER_DESIGNS_URL, { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { handleUnauthorized(); return; }
     if (!res.ok) return;
     let list = await res.json();
-    if (!Array.isArray(list)) list = [list];
-    list = list.filter(d => d && (d.estimated_price || d.image_url));
+    if (!Array.isArray(list)) list = (list && Array.isArray(list.items)) ? list.items : [];
+    list = list.filter(d => d && d.id != null);
     if (list.length === 0) return;
 
     const wrap = document.getElementById("historyWrap");
     const scroll = document.getElementById("historyScroll");
     scroll.innerHTML = "";
 
+    const labels = { processing: "در حال پردازش", new: "آماده", failed: "ناموفق" };
     list.forEach(d => {
       const card = document.createElement("div");
       card.className = "history-card";
-      const price = Number(d.estimated_price || 0).toLocaleString("fa-IR");
-      const date = d.created_at ? new Date(d.created_at).toLocaleDateString("fa-IR") : "";
-      card.innerHTML =
-        '<img src="' + (d.image_url || "") + '" onerror="this.style.display=\'none\'">' +
-        '<div class="history-price">' + price + ' تومان</div>' +
-        '<div class="history-date">' + date + '</div>';
-      card.addEventListener("click", () => showResult(d, d.id));
+      const priceNum = Number(d.estimated_price || 0);
+      const price = priceNum > 0 ? (priceNum.toLocaleString("fa-IR") + " تومان") : "—";
+      const thumb = d.ai_design_url || d.image_url || "";
+      const label = labels[d.status] || d.status || "";
+      if (thumb) {
+        const img = document.createElement("img");
+        img.src = thumb;
+        img.alt = "";
+        img.addEventListener("error", () => { img.style.display = "none"; });
+        card.appendChild(img);
+      }
+      const priceEl = document.createElement("div");
+      priceEl.className = "history-price";
+      priceEl.textContent = price;
+      const labelEl = document.createElement("div");
+      labelEl.className = "history-date";
+      labelEl.textContent = label;
+      card.appendChild(priceEl);
+      card.appendChild(labelEl);
+      card.addEventListener("click", () => openHistoryDesign(d.id));
       scroll.appendChild(card);
     });
 
@@ -1183,11 +1281,32 @@ async function loadHistory() {
   }
 }
 
-loadHistory();
+async function openHistoryDesign(designId) {
+  if (!designId) return;
+  try {
+    const res = await fetch(DESIGN_RESULT_URL + "?design_id=" + encodeURIComponent(designId), { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { handleUnauthorized(); return; }
+    if (!res.ok) return;
+    let d = await res.json();
+    if (Array.isArray(d)) d = d[0];
+    if (d && d.id) { lastDesignId = designId; showResult(d, designId); }
+  } catch (e) {
+    console.error("history open error", e);
+  }
+}
+
+if (!PREVIEW) loadHistory();
 
 /* ---------- Submit ---------- */
 
 document.getElementById("send").addEventListener("click", async () => {
+
+  if (PREVIEW) {
+    const pm = document.getElementById("message");
+    pm.textContent = "حالت پیش‌نمایش: ارسال واقعی درخواست غیرفعال است.";
+    pm.className = "error";
+    return;
+  }
 
   // قفل فوری: قبل از هر await / Canvas / upload / request
   if (isSubmitting) return;
@@ -1270,8 +1389,8 @@ document.getElementById("send").addEventListener("click", async () => {
     }
 
     const response = await fetch(DESIGN_REQUEST_URL, { method: "POST", headers: authHeaders(), body: formData });
-    if (response.status === 401 || response.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
 
+    if (response.status === 401 || response.status === 403) { endLoading("نشست نامعتبر است. لطفاً دوباره وارد شوید.", true); handleUnauthorized(); return; }
     if (!response.ok) { throw new Error("Request failed"); }
 
     let requestData = null;
@@ -1409,7 +1528,7 @@ async function retryDesign() {
     const ch = document.getElementById("ceiling_height"); if (ch && ch.value) fd.append("ceiling_height", ch.value);
 
     const res = await fetch(DESIGN_REQUEST_URL, { method: "POST", headers: authHeaders(), body: fd });
-    if (res.status === 401 || res.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
+    if (res.status === 401 || res.status === 403) { handleUnauthorized(); return; }
     let d = null; try { d = await res.json(); } catch (e) {}
 
     if (d && d.success) {
@@ -1453,7 +1572,7 @@ async function pollDesignImage(designId, attempt) {
   try {
     const url = DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId) + "&design_id=" + encodeURIComponent(designId);
     const res = await fetch(url, { headers: authHeaders() });
-    if (res.status === 401 || res.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
+    if (res.status === 401 || res.status === 403) { handleUnauthorized(); return; }
     if (res.ok) {
       let d = await res.json();
       if (Array.isArray(d)) d = d[0];
@@ -1495,8 +1614,8 @@ async function loadDesignResult(customerId, attempt, designId) {
     if (designId) { url += "&design_id=" + encodeURIComponent(designId); }
 
     const response = await fetch(url, { headers: authHeaders() });
-    if (response.status === 401 || response.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
 
+    if (response.status === 401 || response.status === 403) { endLoading("نشست نامعتبر است. لطفاً دوباره وارد شوید.", true); handleUnauthorized(); return; }
     if (!response.ok) { throw new Error("Result request failed"); }
 
     let data = await response.json();
@@ -1546,6 +1665,7 @@ async function loadDesignResult(customerId, attempt, designId) {
 }
 
 document.getElementById("retryNowBtn").addEventListener("click", () => {
+  if (PREVIEW) return;
   document.getElementById("retryNowBtn").textContent = "⏳ در حال بررسی...";
   loadDesignResult(customerId, 9999, lastDesignId).finally(() => {
     document.getElementById("retryNowBtn").textContent = "🔄 بررسی دوباره";
