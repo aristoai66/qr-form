@@ -354,6 +354,8 @@ otpForm.addEventListener("submit", async function (e) {
       throw new Error(responseData.message || "کد OTP نامعتبر است");
     }
 
+    try { if (responseData.token) { sessionStorage.setItem("hc_token", responseData.token); } } catch (e) {}
+
     window.location.href = "design.html?customer_id=" + encodeURIComponent(responseData.customer_id);
 
   } catch (error) {

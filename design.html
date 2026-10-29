@@ -884,6 +884,9 @@ const DESIGN_RESULT_URL  = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhoo
 const CUSTOMER_DESIGNS_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/customer-designs";
 const AI_DESIGN_URL = "https://app-n8n-mpce5.apps.frk1.abrhapaas.com/webhook/ai-design";
 
+function hcToken() { try { return sessionStorage.getItem("hc_token") || ""; } catch (e) { return ""; } }
+function authHeaders() { const t = hcToken(); return t ? { "Authorization": "Bearer " + t } : {}; }
+
 // Supabase Storage — آپلود تصویر پین‌شده از فرانت‌اند.
 // «کلید عمومی (anon)» پروژه را در متغیر زیر قرار بده (این کلید برای استفاده در مرورگر طراحی شده است).
 const SUPABASE_URL = "https://grrunjwpwwdujdliiyeh.supabase.co";
@@ -1149,7 +1152,8 @@ function getDeviceId() {
 async function loadHistory() {
   if (!customerId) return;
   try {
-    const res = await fetch(CUSTOMER_DESIGNS_URL + "?customer_id=" + encodeURIComponent(customerId));
+    const res = await fetch(CUSTOMER_DESIGNS_URL + "?customer_id=" + encodeURIComponent(customerId), { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
     if (!res.ok) return;
     let list = await res.json();
     if (!Array.isArray(list)) list = [list];
@@ -1265,7 +1269,8 @@ document.getElementById("send").addEventListener("click", async () => {
       formData.append("annotated_image_url", "");
     }
 
-    const response = await fetch(DESIGN_REQUEST_URL, { method: "POST", body: formData });
+    const response = await fetch(DESIGN_REQUEST_URL, { method: "POST", headers: authHeaders(), body: formData });
+    if (response.status === 401 || response.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
 
     if (!response.ok) { throw new Error("Request failed"); }
 
@@ -1403,7 +1408,8 @@ async function retryDesign() {
     const kw = document.getElementById("kitchen_width"); if (kw && kw.value) fd.append("kitchen_width", kw.value);
     const ch = document.getElementById("ceiling_height"); if (ch && ch.value) fd.append("ceiling_height", ch.value);
 
-    const res = await fetch(DESIGN_REQUEST_URL, { method: "POST", body: fd });
+    const res = await fetch(DESIGN_REQUEST_URL, { method: "POST", headers: authHeaders(), body: fd });
+    if (res.status === 401 || res.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
     let d = null; try { d = await res.json(); } catch (e) {}
 
     if (d && d.success) {
@@ -1446,7 +1452,8 @@ async function pollDesignImage(designId, attempt) {
 
   try {
     const url = DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId) + "&design_id=" + encodeURIComponent(designId);
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
     if (res.ok) {
       let d = await res.json();
       if (Array.isArray(d)) d = d[0];
@@ -1487,7 +1494,8 @@ async function loadDesignResult(customerId, attempt, designId) {
     let url = DESIGN_RESULT_URL + "?customer_id=" + encodeURIComponent(customerId);
     if (designId) { url += "&design_id=" + encodeURIComponent(designId); }
 
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: authHeaders() });
+    if (response.status === 401 || response.status === 403) { try { sessionStorage.removeItem("hc_token"); } catch (e) {} window.location.href = "index.html"; return; }
 
     if (!response.ok) { throw new Error("Result request failed"); }
 
