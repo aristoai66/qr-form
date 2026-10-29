@@ -657,6 +657,7 @@
     <nav class="nav-links">
       <a href="index.html">صفحه اصلی</a>
       <a href="#historyWrap">طراحی‌های من</a>
+      <a href="layout.html" id="openLayoutNav">چیدمان کابینت‌ها</a>
       <a href="tel:+989121234567">مشاوره</a>
       <a class="nav-cta" href="#section-photo">شروع طراحی</a>
     </nav>
@@ -674,6 +675,7 @@
     </p>
     <div class="hero-actions">
       <a class="btn btn-gold" href="#section-photo">شروع طراحی</a>
+      <a class="btn btn-ghost" href="layout.html" id="openLayoutHero">چیدمان کابینت‌ها</a>
       <a class="btn btn-ghost" href="#historyWrap">طراحی‌های قبلی</a>
     </div>
   </div>
@@ -1742,6 +1744,75 @@ function showResult(data, designId) {
 
   document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+/* ---------- انتقال محلی به ابزار چیدمان ---------- */
+let openingLayout = false;
+
+function buildLayoutUrl(){
+  const q = new URLSearchParams();
+  q.set("from", "design");
+  if (customerId) q.set("customer_id", customerId);
+  const fields = ["wall_length", "kitchen_width", "ceiling_height"];
+  fields.forEach(id => { const el = document.getElementById(id); if (el && el.value) q.set(id, el.value); });
+  ["pref_style","pref_material","pref_color","pref_handle","pref_tall","pref_island"].forEach(name => {
+    const v = getRadio(name, "");
+    if (v) q.set(name, v);
+  });
+  return "layout.html?" + q.toString();
+}
+
+function readImageForLayout(file){
+  return new Promise((resolve)=>{
+    if (!file) { resolve(null); return; }
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(String(reader.result || ""));
+    reader.onerror = ()=>resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function openLayout(e){
+  if (e) e.preventDefault();
+  if (openingLayout) return;
+  openingLayout = true;
+  const messageEl = document.getElementById("message");
+  try {
+    const file = imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
+    const imageDataUrl = await readImageForLayout(file);
+    const payload = {
+      imageDataUrl: imageDataUrl || null,
+      imageName: file ? file.name : null,
+      prefs: {
+        style: getRadio("pref_style", ""),
+        material: getRadio("pref_material", ""),
+        color: getRadio("pref_color", ""),
+        handle: getRadio("pref_handle", ""),
+        tall: getRadio("pref_tall", ""),
+        island: getRadio("pref_island", "")
+      }
+    };
+    try {
+      if (!imageDataUrl || imageDataUrl.length < 2500000){
+        sessionStorage.setItem("hc_layout_incoming", JSON.stringify(payload));
+      } else {
+        sessionStorage.removeItem("hc_layout_incoming");
+        if (messageEl){ messageEl.textContent = "عکس بزرگ است؛ ابزار چیدمان بدون انتقال خودکار عکس باز می‌شود."; messageEl.className = "error"; }
+      }
+    } catch (err) {
+      try { sessionStorage.removeItem("hc_layout_incoming"); } catch (e2) {}
+    }
+    window.location.href = buildLayoutUrl();
+  } catch (err) {
+    window.location.href = "layout.html?from=design" + (customerId ? "&customer_id=" + encodeURIComponent(customerId) : "");
+  } finally {
+    openingLayout = false;
+  }
+}
+
+["openLayoutNav", "openLayoutHero"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("click", openLayout);
+});
 
 </script>
 

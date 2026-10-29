@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>چیدمان کابینت — خانه چوبی</title>
+<style>
+  :root{
+    --bg:#0d1115; --panel:#151b21; --panel2:#1b232b; --line:#2a3540;
+    --text:#eef2f5; --dim:#9ba8b4; --gold:#c9a15c; --gold2:#e5c98c;
+    --green:#5cc99a; --red:#e57373; --blue:#6fa8dc;
+    --r:14px; --shadow:0 10px 30px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:radial-gradient(900px 500px at 80% -10%,rgba(201,161,92,.16),transparent 60%),var(--bg);
+    color:var(--text);font-family:Tahoma,Vazirmatn,Arial,sans-serif;line-height:1.7;
+  }
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .app-header{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(13,17,21,.86);
+    position:sticky;top:0;z-index:50;backdrop-filter:blur(10px)
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+  .brand-mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--gold);color:#1a1409;font-weight:900}
+  .brand small{display:block;color:var(--dim);font-size:11px;font-weight:400;letter-spacing:.08em}
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:10px;font-size:12.5px}
+  .btn:hover{border-color:var(--gold);color:var(--gold2)}
+  .btn-primary{background:var(--gold);border-color:var(--gold);color:#1a1409;font-weight:700}
+  .btn-danger{color:#ffb4b4}
+  .app-grid{
+    display:grid;grid-template-columns:250px minmax(0,1fr) 290px;gap:14px;
+    padding:14px;max-width:1500px;margin:0 auto;align-items:start
+  }
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .panel h2{font-size:13px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--gold2);letter-spacing:.02em}
+  .panel-body{padding:12px}
+  .lib-group{margin-bottom:14px}
+  .lib-group h3{font-size:11.5px;color:var(--dim);margin:0 0 7px;font-weight:600}
+  .lib-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .lib-item{
+    text-align:right;border:1px solid var(--line);background:#11171c;color:var(--text);
+    border-radius:10px;padding:8px 9px;display:flex;gap:8px;align-items:center;font-size:12px
+  }
+  .lib-item:hover{border-color:var(--gold);background:#1a2128}
+  .lib-ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#222d36;color:var(--gold2);font-size:14px;flex:none}
+  .workspace{min-width:0}
+  .workspace-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .room-fields{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--dim)}
+  .room-fields input{width:76px;background:#0e1419;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 8px}
+  .image-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px;border-bottom:1px solid var(--line);background:rgba(10,15,19,.4)}
+  .image-bar .mini{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:5px}
+  .image-bar input[type=range]{width:88px;accent-color:var(--gold)}
+  .image-bar .btn{padding:6px 9px;font-size:11.5px}
+  .image-bar .btn.active{border-color:var(--gold);color:var(--gold2);background:rgba(201,161,92,.12)}
+  #imageName{font-size:11px;color:var(--dim);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .img-note{padding:0 12px 9px;color:var(--dim);font-size:10.5px}
+  .bg-image{position:absolute;pointer-events:none;user-select:none;object-fit:fill;z-index:1;border-radius:4px}
+  .stage.image-mode .item{pointer-events:none}
+  .stage.calibration-mode{cursor:crosshair}
+  .stage.calibration-mode .item{pointer-events:none}
+  .calib-point{position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--gold);transform:translate(-50%,-50%);z-index:40;pointer-events:none}
+  .stage-wrap{padding:12px;overflow:auto}
+  .stage{
+    position:relative;width:100%;max-width:980px;margin:0 auto;border-radius:12px;
+    background:#0a0f13;border:1px solid #33414c;overflow:hidden;touch-action:none
+  }
+  .room{
+    position:absolute;inset:0;background-color:#0f171c;
+    background-image:linear-gradient(to right,rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.055) 1px,transparent 1px);
+    box-shadow:inset 0 0 0 5px #26323c, inset 0 0 0 7px #151d24;
+  }
+  .room::before,.room::after{content:"";position:absolute;pointer-events:none;border-color:#33414c}
+  .room::before{inset:0;border:2px solid #3a4a57;border-radius:2px}
+  .room::after{inset:7px;border:1px dashed rgba(201,161,92,.16)}
+  .item{
+    position:absolute;border-radius:7px;border:1px solid rgba(255,255,255,.35);
+    background:var(--item-color,#c9a15c);color:#111;display:flex;align-items:center;justify-content:center;
+    text-align:center;font-size:10px;font-weight:700;cursor:grab;user-select:none;
+    box-shadow:0 6px 16px rgba(0,0,0,.25);overflow:hidden;padding:2px;line-height:1.25
+  }
+  .item.compact{font-size:9px}
+  .item.wall{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.16) 0 5px,transparent 5px 10px);border-style:dashed}
+  .item.fixed{background:rgba(124,143,158,.28);border-color:#8ea2b3;color:#e8f0f6;box-shadow:none;cursor:default}
+  .item.fixed:not(.locked){cursor:grab}
+  .item.selected{outline:2px solid #fff;outline-offset:2px;z-index:30;overflow:visible}
+  .item[data-style="shaker"]{border-width:2px;box-shadow:inset 0 0 0 3px rgba(0,0,0,.18),0 6px 16px rgba(0,0,0,.25)}
+  .item[data-style="handleless"]{border-style:solid;border-color:rgba(255,255,255,.7);box-shadow:inset 0 -7px 0 rgba(0,0,0,.12),0 6px 16px rgba(0,0,0,.25)}
+  .item[data-style="classic"]{border-style:double;border-width:3px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.22),0 6px 16px rgba(0,0,0,.25)}
+  .item .lock{position:absolute;top:2px;left:3px;font-size:9px;opacity:.85}
+  .item .resize{
+    position:absolute;left:-5px;bottom:-5px;width:14px;height:14px;border-radius:50%;
+    background:var(--gold);border:2px solid #0d1115;cursor:nwse-resize;display:none
+  }
+  .item.selected .resize{display:block}
+  .item .del{
+    position:absolute;top:-7px;right:-7px;width:19px;height:19px;border-radius:50%;
+    border:1px solid #9c3b3b;background:#411d1d;color:#ffb4b4;font-size:12px;line-height:1;display:none
+  }
+  .item.selected .del{display:grid;place-items:center}
+  .hint{padding:0 12px 12px;color:var(--dim);font-size:11.5px}
+  .inspector-empty{color:var(--dim);font-size:12px;padding:6px 2px}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px}
+  .field input,.field select{width:100%;background:#0e1419;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 8px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .swatches{display:flex;flex-wrap:wrap;gap:7px}
+  .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+  .swatch.active{border-color:#fff}
+  .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;background:#222d36;color:var(--gold2)}
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1d2932;border:1px solid var(--gold);
+    color:var(--text);padding:9px 14px;border-radius:10px;z-index:99;font-size:12.5px;opacity:0;pointer-events:none;transition:.2s
+  }
+  .toast.show{opacity:1}
+  #selftest{position:fixed;inset:auto 10px 10px 10px;max-height:45vh;overflow:auto;background:#0b1116;border:1px solid #4f7;border-radius:10px;padding:10px;font:12px/1.5 monospace;white-space:pre-wrap;z-index:200;display:none}
+  #selftest.show{display:block}
+  @media (max-width:1150px){
+    .app-grid{grid-template-columns:220px minmax(0,1fr);}
+    .inspector{grid-column:1 / -1}
+  }
+  @media (max-width:760px){
+    .app-grid{grid-template-columns:1fr;padding:10px;gap:10px}
+    .library{order:2}.workspace{order:1}.inspector{order:3}
+    .lib-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .lib-item{font-size:11px;padding:7px}
+    .lib-ic{display:none}
+    .stage-wrap{padding:8px}
+    .workspace-bar{align-items:flex-start}
+    .room-fields{width:100%}
+  }
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">چ</div>
+    <div>چیدمان آشپزخانه <small>نمونه اولیه · بدون AI</small></div>
+  </div>
+  <div class="header-actions">
+    <a class="btn" id="btnBackDesign" href="index.html">بازگشت به طراحی</a>
+    <button class="btn" id="btnSave">ذخیره محلی</button>
+    <button class="btn" id="btnDownload">دریافت JSON</button>
+    <button class="btn" id="btnLoad">بارگذاری JSON</button>
+    <button class="btn btn-danger" id="btnReset">بازنشانی</button>
+  </div>
+</header>
+
+<main class="app-grid">
+  <aside class="library panel">
+    <h2>کتابخانه اجزا</h2>
+    <div class="panel-body">
+      <div class="lib-group">
+        <h3>کابینت‌ها</h3>
+        <div class="lib-grid">
+          <button class="lib-item" data-add="base"><span class="lib-ic">▭</span><span>زمینی</span></button>
+          <button class="lib-item" data-add="wall"><span class="lib-ic">▤</span><span>دیواری</span></button>
+          <button class="lib-item" data-add="tall"><span class="lib-ic">▯</span><span>قدی</span></button>
+        </div>
+      </div>
+      <div class="lib-group">
+        <h3>تجهیزات</h3>
+        <div class="lib-grid">
+          <button class="lib-item" data-add="fridge"><span class="lib-ic">▥</span><span>یخچال</span></button>
+          <button class="lib-item" data-add="sink"><span class="lib-ic">◉</span><span>سینک</span></button>
+          <button class="lib-item" data-add="stove"><span class="lib-ic">◍</span><span>اجاق</span></button>
+          <button class="lib-item" data-add="hood"><span class="lib-ic">⌂</span><span>هود</span></button>
+        </div>
+      </div>
+      <div class="lib-group">
+        <h3>ساختار ثابت</h3>
+        <div class="lib-grid">
+          <button class="lib-item" data-add="window"><span class="lib-ic">▣</span><span>پنجره</span></button>
+          <button class="lib-item" data-add="door"><span class="lib-ic">◫</span><span>در</span></button>
+          <button class="lib-item" data-add="column"><span class="lib-ic">▮</span><span>ستون</span></button>
+        </div>
+      </div>
+      <p style="color:var(--dim);font-size:11px;margin:10px 0 0">
+        ساختارهای ثابت به‌صورت پیش‌فرض قفل‌اند و موانع چیدمان محسوب می‌شوند.
+      </p>
+    </div>
+  </aside>
+
+  <section class="workspace panel">
+    <div class="workspace-bar">
+      <div class="room-fields">
+        <span>اتاق:</span>
+        <input id="roomW" type="number" min="180" max="900" step="5" value="360" aria-label="عرض اتاق">
+        <span>×</span>
+        <input id="roomD" type="number" min="180" max="700" step="5" value="300" aria-label="عمق اتاق">
+        <span>سانتی‌متر</span>
+      </div>
+      <div style="font-size:11.5px;color:var(--dim)" id="count">۰ جزء</div>
+    </div>
+    <div class="image-bar">
+      <button class="btn" id="btnImage">بارگذاری عکس</button>
+      <button class="btn" id="btnImageFit">تناسب</button>
+      <button class="btn" id="btnImageMode">جابه‌جایی تصویر</button>
+      <button class="btn" id="btnCalibrate">کالیبراسیون</button>
+      <button class="btn btn-danger" id="btnImageRemove">حذف عکس</button>
+      <label class="mini">شفافیت <input id="imageOpacity" type="range" min="10" max="100" value="55"></label>
+      <label class="mini">بزرگ‌نمایی <input id="imageZoom" type="range" min="20" max="250" value="100"></label>
+      <span id="imageName">بدون عکس</span>
+    </div>
+    <div class="img-note">کالیبراسیون دوبعدی تقریبی است؛ در عکس پرسپکتیودار، یک مقیاس برای همه نقاط دقیق نیست. ساختار ثابت باید جداگانه مشخص و قفل شود.</div>
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <div class="room" id="room"></div>
+      </div>
+    </div>
+    <div class="hint">برای جابه‌جایی بکشید؛ برای تغییر اندازه از دسته انتخاب استفاده کنید. برخورد با اجزای ثابت یا کابینت‌های هم‌لایه مجاز نیست.</div>
+  </section>
+
+  <aside class="inspector panel">
+    <h2>ویژگی‌ها</h2>
+    <div class="panel-body" id="inspector">
+      <div class="inspector-empty" id="emptyInspector">یک جزء را انتخاب کنید.</div>
+      <div id="itemProps" style="display:none">
+        <div class="field"><label>نام</label><input id="pName" readonly></div>
+        <div class="field-row">
+          <div class="field"><label>X (cm)</label><input id="pX" type="number" step="5"></div>
+          <div class="field"><label>Y (cm)</label><input id="pY" type="number" step="5"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>عرض (cm)</label><input id="pW" type="number" step="5"></div>
+          <div class="field"><label>عمق (cm)</label><input id="pD" type="number" step="5"></div>
+        </div>
+        <div class="field"><label>رنگ</label><input id="pColor" type="color"></div>
+        <div class="field"><label>سبک</label>
+          <select id="pStyle">
+            <option value="flat">فلت / مدرن</option>
+            <option value="shaker">شیکر / قاب‌دار</option>
+            <option value="handleless">بدون دستگیره</option>
+            <option value="classic">کلاسیک</option>
+          </select>
+        </div>
+        <div class="field" id="lockWrap" style="display:none">
+          <label><input id="pLocked" type="checkbox" style="width:auto"> ساختار قفل باشد</label>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnApply">اعمال</button>
+          <button class="btn btn-danger" id="btnDelete">حذف</button>
+        </div>
+        <p style="color:var(--dim);font-size:10.5px;margin:10px 0 0" id="pMeta"></p>
+      </div>
+      <div id="roomProps" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+        <div class="badge">تنظیمات اتاق</div>
+        <p style="color:var(--dim);font-size:11px;margin:8px 0 0">
+          ساختار ثابت از کتابخانه اضافه/ویرایش می‌شود. برای جابه‌جایی یک ساختار، ابتدا قفل آن را باز کنید.
+        </p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="toast" id="toast"></div>
+<pre id="selftest"></pre>
+<input id="loadFile" type="file" accept="application/json,.json" style="display:none">
+<input id="imageFile" type="file" accept="image/*" style="display:none">
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = "hc_layout_v2";
+  const OLD_STORAGE_KEY = "hc_layout_v1";
+  const SNAP = 5;
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const stage = $("#stage");
+  const room = $("#room");
+  const toastEl = $("#toast");
+
+  const CATALOG = {
+    base:{label:"کابینت زمینی", w:60, d:60, h:85, layer:"floor", cat:"cabinet", color:"#c9a15c", icon:"▭"},
+    wall:{label:"کابینت دیواری", w:60, d:35, h:70, layer:"wall", cat:"cabinet", color:"#c9a15c", wall:true, icon:"▤"},
+    tall:{label:"کابینت قدی", w:60, d:60, h:220, layer:"floor", cat:"cabinet", color:"#c9a15c", icon:"▯"},
+    fridge:{label:"یخچال", w:70, d:70, h:180, layer:"floor", cat:"appliance", color:"#9fb3c8", icon:"▥"},
+    sink:{label:"سینک", w:60, d:60, h:85, layer:"floor", cat:"appliance", color:"#9fc3c9", icon:"◉"},
+    stove:{label:"اجاق", w:60, d:60, h:85, layer:"floor", cat:"appliance", color:"#c9a15c", icon:"◍"},
+    hood:{label:"هود", w:60, d:35, h:60, layer:"wall", cat:"appliance", color:"#aab7c2", wall:true, icon:"⌂"},
+    window:{label:"پنجره", w:100, d:12, h:0, layer:"fixed", cat:"fixed", fixed:true, locked:true, color:"#6fa8dc", icon:"▣"},
+    door:{label:"در", w:80, d:12, h:0, layer:"fixed", cat:"fixed", fixed:true, locked:true, color:"#6fa8dc", icon:"◫"},
+    column:{label:"ستون", w:30, d:30, h:0, layer:"fixed", cat:"fixed", fixed:true, locked:true, color:"#7c8f9e", icon:"▮"}
+  };
+
+  const unit = (v) => Math.round(v / SNAP) * SNAP;
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "i-" + Date.now() + "-" + Math.random().toString(36).slice(2,7);
+  const deep = (o) => JSON.parse(JSON.stringify(o));
+
+  function defaultState(){
+    return {
+      version: 2,
+      room: { w: 360, d: 300 },
+      image: null,
+      calibration: null,
+      items: [
+        { id: uid(), kind:"window", name:"پنجره", x:130, y:0, w:100, d:12, h:0, layer:"fixed", cat:"fixed", fixed:true, locked:true, color:"#6fa8dc", icon:"▣" },
+        { id: uid(), kind:"door", name:"در", x:0, y:250, w:80, d:12, h:0, layer:"fixed", cat:"fixed", fixed:true, locked:true, color:"#6fa8dc", icon:"◫" },
+        { id: uid(), kind:"column", name:"ستون", x:0, y:0, w:30, d:30, h:0, layer:"fixed", cat:"fixed", fixed:true, locked:true, color:"#7c8f9e", icon:"▮" }
+      ]
+    };
+  }
+
+  let state = defaultState();
+  let selectedId = null;
+  let imageMode = false;
+  let calibrationMode = false;
+  let calibPoints = [];
+  let incomingPrefs = null;
+
+  function loadLocal(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = migrateState(JSON.parse(raw));
+      if (validateState(parsed)) state = parsed;
+    } catch (e) {}
+  }
+  function saveLocal(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { toast("ذخیره محلی انجام نشد (حجم تصویر زیاد است)."); }
+  }
+
+  function migrateState(obj){
+    if (!obj || typeof obj !== "object") return obj;
+    const out = deep(obj);
+    if (!Number.isFinite(+out.version) || +out.version < 2){
+      out.version = 2;
+      out.image = null;
+      out.calibration = null;
+    }
+    if (!("image" in out)) out.image = null;
+    if (!("calibration" in out)) out.calibration = null;
+    return out;
+  }
+
+  function validateState(obj){
+    if (!obj || typeof obj !== "object") return false;
+    if (!obj.room || !Number.isFinite(+obj.room.w) || !Number.isFinite(+obj.room.d)) return false;
+    if (!Array.isArray(obj.items)) return false;
+    if (obj.image && (typeof obj.image !== "object" || !obj.image.dataUrl ||
+      !["x","y","w","h","opacity"].every(k => Number.isFinite(+obj.image[k])))) return false;
+    return obj.items.every(it => it && typeof it.kind === "string" &&
+      ["x","y","w","d"].every(k => Number.isFinite(+it[k])));
+  }
+
+  function itemRect(it){ return { x:+it.x, y:+it.y, w:+it.w, d:+it.d }; }
+  function overlaps(a,b){
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.d && a.y + a.d > b.y;
+  }
+  function touchesWall(it, room){
+    const r = itemRect(it);
+    const e = 0.5;
+    return r.x <= e || r.y <= e || r.x + r.w >= room.w - e || r.y + r.d >= room.d - e;
+  }
+  function validPlacement(item, x, y, w, d, ignoreId){
+    const r = itemRect({x,y,w,d});
+    if (r.x < 0 || r.y < 0 || r.x + r.w > state.room.w + .001 || r.y + r.d > state.room.d + .001) return false;
+    if (item.wall && !touchesWall({x,y,w,d}, state.room)) return false;
+    for (const other of state.items){
+      if (other.id === ignoreId) continue;
+      const o = itemRect(other);
+      const blocks = other.fixed || other.layer === item.layer;
+      if (blocks && overlaps(r, o)) return false;
+    }
+    return true;
+  }
+
+  function findFreeSpot(tpl){
+    const step = 10;
+    const startY = tpl.wall ? 0 : 10;
+    for (let y = startY; y <= state.room.d - tpl.d; y += step){
+      for (let x = 0; x <= state.room.w - tpl.w; x += step){
+        if (validPlacement(tpl, x, y, tpl.w, tpl.d)) return {x,y};
+      }
+    }
+    return null;
+  }
+
+  function styleFromIncoming(v){
+    const s = String(v || "").trim();
+    if (/شیکر|قاب/.test(s)) return "shaker";
+    if (/کلاسیک/.test(s)) return "classic";
+    if (/بدون|هندل/.test(s)) return "handleless";
+    return "flat";
+  }
+
+  function addItem(kind){
+    const base = CATALOG[kind];
+    if (!base) return;
+    const tpl = Object.assign({}, base, {
+      id: uid(), kind, name: base.label,
+      x:0, y:0, w:base.w, d:base.d, h:base.h,
+      layer:base.layer, cat:base.cat, fixed:!!base.fixed, locked:!!base.locked,
+      color:base.color || "#c9a15c",
+      style: incomingPrefs && base.cat === "cabinet" ? styleFromIncoming(incomingPrefs.style) : "flat"
+    });
+    const spot = findFreeSpot(tpl);
+    if (!spot){ toast("جای خالی برای این جزء پیدا نشد."); return; }
+    tpl.x = spot.x; tpl.y = spot.y;
+    state.items.push(tpl);
+    selectedId = tpl.id;
+    render(); saveLocal();
+    toast(base.label + " اضافه شد.");
+  }
+
+  function deleteSelected(){
+    const it = getSelected();
+    if (!it) return;
+    if (it.fixed && it.locked){ toast("ابتدا قفل ساختار ثابت را باز کنید."); return; }
+    state.items = state.items.filter(x => x.id !== it.id);
+    selectedId = null;
+    render(); saveLocal();
+    toast("جزء حذف شد.");
+  }
+
+  function getSelected(){ return state.items.find(i => i.id === selectedId) || null; }
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>toastEl.classList.remove("show"), 1800);
+  }
+
+  function render(){
+    $("#roomW").value = state.room.w;
+    $("#roomD").value = state.room.d;
+    stage.style.aspectRatio = state.room.w + " / " + state.room.d;
+    room.style.backgroundSize = (10/state.room.w*100) + "% " + (10/state.room.d*100) + "%";
+    room.innerHTML = "";
+    $("#count").textContent = state.items.length.toLocaleString("fa-IR") + " جزء";
+
+    renderImage();
+    state.items.forEach(it => room.appendChild(itemEl(it)));
+    renderInspector();
+  }
+
+  function renderImage(){
+    if (state.image){
+      const im = document.createElement("img");
+      im.className = "bg-image";
+      im.alt = "پس‌زمینه آشپزخانه";
+      im.draggable = false;
+      im.src = state.image.dataUrl;
+      im.style.left = (state.image.x / state.room.w * 100) + "%";
+      im.style.top = (state.image.y / state.room.d * 100) + "%";
+      im.style.width = (state.image.w / state.room.w * 100) + "%";
+      im.style.height = (state.image.h / state.room.d * 100) + "%";
+      im.style.opacity = String(state.image.opacity);
+      room.appendChild(im);
+    }
+    $("#imageName").textContent = state.image ? (state.image.name || "عکس آشپزخانه") : "بدون عکس";
+    $("#btnImageMode").classList.toggle("active", imageMode);
+    $("#btnCalibrate").classList.toggle("active", calibrationMode);
+    $("#imageZoom").disabled = !state.image;
+    $("#imageOpacity").disabled = !state.image;
+    $("#btnImageRemove").disabled = !state.image;
+    $("#btnImageFit").disabled = !state.image;
+    $("#btnImageMode").disabled = !state.image;
+    $("#btnCalibrate").disabled = !state.image;
+    $("#imageZoom").value = state.image ? clamp(Math.round(state.image.w / state.room.w * 100), 20, 250) : 100;
+    $("#imageOpacity").value = state.image ? Math.round(state.image.opacity * 100) : 55;
+    stage.classList.toggle("image-mode", imageMode);
+    stage.classList.toggle("calibration-mode", calibrationMode);
+    $$(".calib-point").forEach(x => x.remove());
+    calibPoints.forEach((p, i) => {
+      const dot = document.createElement("span");
+      dot.className = "calib-point";
+      dot.style.left = (p.x / state.room.w * 100) + "%";
+      dot.style.top = (p.y / state.room.d * 100) + "%";
+      dot.title = "نقطه " + (i + 1);
+      room.appendChild(dot);
+    });
+  }
+
+  function itemEl(it){
+    const el = document.createElement("div");
+    el.className = "item" + (it.fixed ? " fixed" : "") + (it.locked ? " locked" : "") + (it.layer === "wall" ? " wall" : "") + (it.id === selectedId ? " selected" : "");
+    el.dataset.id = it.id;
+    el.dataset.style = it.style || "flat";
+    el.style.cssText = [
+      "left:" + (it.x/state.room.w*100) + "%",
+      "top:" + (it.y/state.room.d*100) + "%",
+      "width:" + (it.w/state.room.w*100) + "%",
+      "height:" + (it.d/state.room.d*100) + "%",
+      "background:" + (it.color || "#c9a15c")
+    ].join(";");
+    if (it.w < 48 || it.d < 48) el.classList.add("compact");
+    el.title = it.name + " — " + it.w + "×" + it.d + " cm";
+    el.innerHTML = '<span class="lock">' + (it.fixed ? (it.locked ? "🔒" : "🔓") : "") + '</span>' +
+      '<span>' + escapeHtml(it.name) + '</span>' +
+      '<button class="del" type="button" aria-label="حذف">×</button>' +
+      '<span class="resize" aria-label="تغییر اندازه"></span>';
+
+    el.addEventListener("pointerdown", (e)=>{
+      if (e.target.classList.contains("del") || e.target.classList.contains("resize")) return;
+      const wasSelected = selectedId === it.id;
+      if (!wasSelected) select(it.id);
+      if (it.fixed && it.locked) return;
+      const liveEl = room.querySelector('[data-id="' + cssEscape(it.id) + '"]') || el;
+      startDrag(e, it, liveEl);
+    });
+    el.querySelector(".del").addEventListener("pointerdown", (e)=>{ e.stopPropagation(); if (selectedId !== it.id) select(it.id); deleteSelected(); });
+    el.querySelector(".resize").addEventListener("pointerdown", (e)=>{
+      e.stopPropagation();
+      if (it.fixed && it.locked) return;
+      if (selectedId !== it.id) select(it.id);
+      const liveEl = room.querySelector('[data-id="' + cssEscape(it.id) + '"]') || el;
+      startResize(e, it, liveEl);
+    });
+    return el;
+  }
+
+  function select(id){ selectedId = id; render(); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function cssEscape(s){ if (window.CSS && typeof CSS.escape === "function") return CSS.escape(String(s)); return String(s).replace(/(["\\])/g, "\\$1"); }
+
+  function startDrag(e, it, el){
+    e.preventDefault();
+    const start = { cx:e.clientX, cy:e.clientY, x:it.x, y:it.y };
+    const rect = room.getBoundingClientRect();
+    const move = (ev)=>{
+      const dx = (ev.clientX - start.cx) / rect.width * state.room.w;
+      const dy = (ev.clientY - start.cy) / rect.height * state.room.d;
+      const nx = clamp(unit(start.x + dx), 0, state.room.w - it.w);
+      const ny = clamp(unit(start.y + dy), 0, state.room.d - it.d);
+      if (validPlacement(it, nx, ny, it.w, it.d, it.id)){
+        it.x = nx; it.y = ny;
+        el.style.left = (nx/state.room.w*100) + "%";
+        el.style.top = (ny/state.room.d*100) + "%";
+        syncInspector(it);
+      }
+    };
+    const up = ()=>{
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", up);
+      document.removeEventListener("pointercancel", up);
+      saveLocal();
+    };
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+    document.addEventListener("pointercancel", up);
+  }
+
+  function startResize(e, it, el){
+    e.preventDefault();
+    const start = { cx:e.clientX, cy:e.clientY, w:it.w, d:it.d };
+    const rect = room.getBoundingClientRect();
+    const minW = it.cat === "fixed" ? 20 : 30;
+    const minD = it.cat === "fixed" ? 12 : 30;
+    const move = (ev)=>{
+      const dx = (ev.clientX - start.cx) / rect.width * state.room.w;
+      const dy = (ev.clientY - start.cy) / rect.height * state.room.d;
+      const nw = clamp(unit(start.w + dx), minW, Math.min(180, state.room.w - it.x));
+      const nd = clamp(unit(start.d + dy), minD, Math.min(180, state.room.d - it.y));
+      if (validPlacement(it, it.x, it.y, nw, nd, it.id)){
+        it.w = nw; it.d = nd;
+        el.style.width = (nw/state.room.w*100) + "%";
+        el.style.height = (nd/state.room.d*100) + "%";
+        syncInspector(it);
+      }
+    };
+    const up = ()=>{
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", up);
+      document.removeEventListener("pointercancel", up);
+      saveLocal();
+    };
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+    document.addEventListener("pointercancel", up);
+  }
+
+  function syncInspector(it){
+    if (!it || selectedId !== it.id) return;
+    $("#pX").value = it.x; $("#pY").value = it.y;
+    $("#pW").value = it.w; $("#pD").value = it.d;
+    $("#pColor").value = it.color || "#c9a15c";
+  }
+
+  function renderInspector(){
+    const it = getSelected();
+    $("#emptyInspector").style.display = it ? "none" : "block";
+    $("#itemProps").style.display = it ? "block" : "none";
+    if (!it) return;
+    $("#pName").value = it.name;
+    $("#pX").value = it.x; $("#pY").value = it.y;
+    $("#pW").value = it.w; $("#pD").value = it.d;
+    $("#pColor").value = it.color || "#c9a15c";
+    $("#pStyle").value = it.style || "flat";
+    $("#lockWrap").style.display = it.fixed ? "block" : "none";
+    $("#pLocked").checked = !!it.locked;
+    $("#pMeta").textContent = "نوع: " + it.cat + " · لایه: " + it.layer + (it.wall ? " · نیازمند دیوار" : "");
+    $("#btnDelete").style.display = "inline-block";
+  }
+
+  function applyInspector(){
+    const it = getSelected();
+    if (!it) return;
+    const x = unit(+$("#pX").value), y = unit(+$("#pY").value);
+    const w = unit(+$("#pW").value), d = unit(+$("#pD").value);
+    if (![x,y,w,d].every(Number.isFinite) || w < 20 || d < 12){
+      toast("اندازه معتبر نیست."); return;
+    }
+    if (!validPlacement(it, x, y, w, d, it.id)){
+      toast("این تغییر با ساختار ثابت یا جزء دیگری تداخل دارد."); return;
+    }
+    it.x=x; it.y=y; it.w=w; it.d=d;
+    it.color = $("#pColor").value;
+    it.style = $("#pStyle").value;
+    if (it.fixed) it.locked = $("#pLocked").checked;
+    render(); saveLocal(); toast("تغییرات اعمال شد.");
+  }
+
+  function resizeRoom(){
+    const w = unit(+$("#roomW").value), d = unit(+$("#roomD").value);
+    if (!Number.isFinite(w) || !Number.isFinite(d) || w < 180 || d < 180){ toast("ابعاد اتاق معتبر نیست."); render(); return; }
+    const overflow = state.items.some(it => it.x + it.w > w + .001 || it.y + it.d > d + .001);
+    if (overflow){ toast("ابتدا اجزای بیرون از اتاق جدید را جابه‌جا کنید."); render(); return; }
+    state.room.w = w; state.room.d = d;
+    render(); saveLocal();
+  }
+
+  function calibrationFactor(measured, known){
+    return (measured > 0 && known > 0) ? known / measured : null;
+  }
+
+  function fitImage(){
+    if (!state.image) return;
+    const aspect = Number(state.image.aspect) || 1;
+    let w = state.room.w;
+    let h = w / aspect;
+    if (h > state.room.d){ h = state.room.d; w = h * aspect; }
+    state.image.w = Math.round(w);
+    state.image.h = Math.round(h);
+    state.image.x = Math.round((state.room.w - w) / 2);
+    state.image.y = Math.round((state.room.d - h) / 2);
+    render(); saveLocal();
+  }
+
+  function setImageFromDataUrl(dataUrl, name){
+    const probe = new Image();
+    probe.onload = ()=>{
+      const aspect = probe.naturalWidth / probe.naturalHeight;
+      state.image = {
+        dataUrl, name: name || "عکس آشپزخانه", aspect,
+        w: 0, h: 0, x: 0, y: 0, opacity: 0.55
+      };
+      state.calibration = null;
+      fitImage();
+      toast("عکس بارگذاری شد؛ با «تناسب» یا بزرگ‌نمایی تنظیم کنید.");
+    };
+    probe.onerror = ()=>toast("عکس قابل خواندن نیست.");
+    probe.src = dataUrl;
+  }
+
+  function compressImage(file, maxSide = 1600){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+          const w = Math.max(1, Math.round(img.naturalWidth * scale));
+          const h = Math.max(1, Math.round(img.naturalHeight * scale));
+          const c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          const ctx = c.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0,0,w,h);
+          ctx.drawImage(img,0,0,w,h);
+          resolve(c.toDataURL("image/jpeg", 0.82));
+        };
+        img.onerror = ()=>reject(new Error("image"));
+        img.src = String(reader.result);
+      };
+      reader.onerror = ()=>reject(new Error("file"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleImageFile(file){
+    if (!file) return;
+    if (!/^image\//.test(file.type)){ toast("فقط فایل تصویری مجاز است."); return; }
+    compressImage(file).then(dataUrl => setImageFromDataUrl(dataUrl, file.name)).catch(()=>toast("پردازش عکس ناموفق بود."));
+  }
+
+  function toggleImageMode(){
+    if (!state.image){ toast("ابتدا عکس را بارگذاری کنید."); return; }
+    imageMode = !imageMode;
+    calibrationMode = false;
+    calibPoints = [];
+    render(); toast(imageMode ? "حالت جابه‌جایی تصویر فعال است." : "حالت جابه‌جایی تصویر غیرفعال شد.");
+  }
+
+  function toggleCalibration(){
+    if (!state.image){ toast("ابتدا عکس را بارگذاری کنید."); return; }
+    calibrationMode = !calibrationMode;
+    imageMode = false;
+    calibPoints = [];
+    render();
+    toast(calibrationMode ? "دو نقطه روی یک طول معلوم انتخاب کنید." : "کالیبراسیون لغو شد.");
+  }
+
+  function calibrationClick(e){
+    if (!state.image || !calibrationMode) return;
+    const rect = room.getBoundingClientRect();
+    const p = {
+      x: clamp((e.clientX - rect.left) / rect.width * state.room.w, 0, state.room.w),
+      y: clamp((e.clientY - rect.top) / rect.height * state.room.d, 0, state.room.d)
+    };
+    calibPoints.push(p);
+    if (calibPoints.length === 1){ render(); toast("نقطه دوم را انتخاب کنید."); return; }
+    const p1 = calibPoints[0], p2 = calibPoints[1];
+    const measured = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    const known = Number(window.prompt("طول واقعی این خط را به سانتی‌متر وارد کنید:", "120"));
+    if (!Number.isFinite(known) || known <= 0){ calibPoints=[]; render(); return; }
+    const factor = calibrationFactor(measured, known);
+    if (!factor || !Number.isFinite(factor)){ calibPoints=[]; render(); toast("کالیبراسیون نامعتبر است."); return; }
+    state.image.x = p1.x + (state.image.x - p1.x) * factor;
+    state.image.y = p1.y + (state.image.y - p1.y) * factor;
+    state.image.w *= factor;
+    state.image.h *= factor;
+    state.calibration = { knownCm: known, measuredCm: measured, factor, p1, p2 };
+    calibrationMode = false;
+    calibPoints = [];
+    render(); saveLocal();
+    toast("کالیبراسیون اعمال شد؛ دقت در عکس پرسپکتیو تقریبی است.");
+  }
+
+  function zoomImage(percent){
+    if (!state.image) return;
+    const aspect = Number(state.image.aspect) || 1;
+    const oldCx = state.image.x + state.image.w/2;
+    const oldCy = state.image.y + state.image.h/2;
+    const w = state.room.w * (percent / 100);
+    const h = w / aspect;
+    state.image.w = Math.round(w);
+    state.image.h = Math.round(h);
+    state.image.x = Math.round(oldCx - w/2);
+    state.image.y = Math.round(oldCy - h/2);
+    render(); saveLocal();
+  }
+
+  function startImageMove(e){
+    if (!state.image) return;
+    e.preventDefault();
+    const start = { cx:e.clientX, cy:e.clientY, x:state.image.x, y:state.image.y };
+    const rect = room.getBoundingClientRect();
+    const move = (ev)=>{
+      const dx = (ev.clientX - start.cx) / rect.width * state.room.w;
+      const dy = (ev.clientY - start.cy) / rect.height * state.room.d;
+      state.image.x = clamp(Math.round(start.x + dx), -state.image.w + 20, state.room.w - 20);
+      state.image.y = clamp(Math.round(start.y + dy), -state.image.h + 20, state.room.d - 20);
+      const im = room.querySelector(".bg-image");
+      if (im){
+        im.style.left = (state.image.x / state.room.w * 100) + "%";
+        im.style.top = (state.image.y / state.room.d * 100) + "%";
+      }
+    };
+    const up = ()=>{
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", up);
+      document.removeEventListener("pointercancel", up);
+      saveLocal();
+    };
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+    document.addEventListener("pointercancel", up);
+  }
+
+  function removeImage(){
+    if (!state.image) return;
+    if (!confirm("عکس پس‌زمینه حذف شود؟")) return;
+    state.image = null; state.calibration = null;
+    imageMode = false; calibrationMode = false; calibPoints = [];
+    render(); saveLocal(); toast("عکس حذف شد.");
+  }
+
+  function applyIncoming(){
+    const qp = new URLSearchParams(location.search);
+    const back = qp.get("from") === "design"
+      ? "design.html" + (qp.get("customer_id") ? "?customer_id=" + encodeURIComponent(qp.get("customer_id")) : "")
+      : "index.html";
+    const backEl = $("#btnBackDesign");
+    if (backEl) backEl.href = back;
+    try {
+      const raw = sessionStorage.getItem("hc_layout_incoming");
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      incomingPrefs = p && p.prefs ? p.prefs : null;
+      if (p && p.imageDataUrl && !state.image){
+        setImageFromDataUrl(p.imageDataUrl, p.imageName || "عکس طراحی");
+        toast("عکس و تنظیمات طراحی منتقل شد؛ مقیاس را کالیبره کنید.");
+      } else if (incomingPrefs){
+        toast("تنظیمات رنگ/سبک طراحی برای اجزای جدید اعمال می‌شود.");
+      }
+      sessionStorage.removeItem("hc_layout_incoming");
+    } catch (e) {}
+  }
+
+  function downloadJSON(){
+    const payload = { app:"khanehchoobi-layout", version:2, exportedAt:new Date().toISOString(), state };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "kitchen-layout.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+    toast("فایل JSON آماده شد.");
+  }
+
+  function loadJSONFile(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try {
+        const obj = JSON.parse(String(reader.result));
+        const incoming = migrateState(obj && obj.state ? obj.state : obj);
+        if (!validateState(incoming)) throw new Error("bad");
+        state = incoming;
+        selectedId = null;
+        imageMode = false;
+        calibrationMode = false;
+        calibPoints = [];
+        render(); saveLocal(); toast("چیدمان بارگذاری شد.");
+      } catch (e) { toast("فایل JSON معتبر نیست."); }
+    };
+    reader.readAsText(file);
+  }
+
+  function resetAll(){
+    if (!confirm("چیدمان فعلی پاک شود؟")) return;
+    state = defaultState(); selectedId = null;
+    imageMode = false; calibrationMode = false; calibPoints = [];
+    render(); saveLocal(); toast("بازنشانی شد.");
+  }
+
+  // Wire UI
+  $("#btnSave").addEventListener("click", ()=>{ saveLocal(); toast("در مرورگر ذخیره شد."); });
+  $("#btnDownload").addEventListener("click", downloadJSON);
+  $("#btnLoad").addEventListener("click", ()=>$("#loadFile").click());
+  $("#loadFile").addEventListener("change", (e)=>{ if (e.target.files && e.target.files[0]) loadJSONFile(e.target.files[0]); e.target.value=""; });
+  $("#btnReset").addEventListener("click", resetAll);
+  $("#btnApply").addEventListener("click", applyInspector);
+  $("#btnDelete").addEventListener("click", deleteSelected);
+  $("#roomW").addEventListener("change", resizeRoom);
+  $("#roomD").addEventListener("change", resizeRoom);
+  $("#btnImage").addEventListener("click", ()=>$("#imageFile").click());
+  $("#imageFile").addEventListener("change", (e)=>{ if (e.target.files && e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value=""; });
+  $("#btnImageRemove").addEventListener("click", removeImage);
+  $("#btnImageFit").addEventListener("click", fitImage);
+  $("#btnImageMode").addEventListener("click", toggleImageMode);
+  $("#btnCalibrate").addEventListener("click", toggleCalibration);
+  $("#imageZoom").addEventListener("input", (e)=>{ if (state.image) zoomImage(+e.target.value); });
+  $("#imageOpacity").addEventListener("input", (e)=>{
+    if (!state.image) return;
+    state.image.opacity = clamp(+e.target.value / 100, 0.1, 1);
+    renderImage(); saveLocal();
+  });
+  $$(".lib-item").forEach(b => b.addEventListener("click", ()=>addItem(b.dataset.add)));
+  $("#stage").addEventListener("pointerdown", (e)=>{
+    if (e.target.closest(".item")) return;
+    if (calibrationMode){ calibrationClick(e); return; }
+    if (imageMode){ startImageMove(e); return; }
+    if (e.target === room || e.target === stage) { selectedId=null; render(); }
+  });
+
+  function selfTest(){
+    const lines = [];
+    const check = (name, ok) => { lines.push((ok ? "PASS " : "FAIL ") + name); return ok; };
+    const saved = deep(state);
+    try {
+      state = defaultState(); selectedId = null;
+      check("default room", state.room.w === 360 && state.room.d === 300);
+      check("fixed structures present", state.items.filter(i=>i.fixed).length === 3);
+
+      const base = Object.assign({}, state.items[0]);
+      // remove fixed for clean test
+      state.items = [];
+      const tpl = {id:"t1",kind:"base",name:"base",x:100,y:100,w:60,d:60,h:85,layer:"floor",cat:"cabinet",fixed:false,locked:false,wall:false,color:"#c9a15c",style:"flat"};
+      check("free floor spot", validPlacement(tpl,100,100,60,60,null) === true);
+      state.items.push(Object.assign({},tpl,{x:100,y:100}));
+      check("same-layer overlap rejected", validPlacement(Object.assign({},tpl,{id:"t2"}),120,120,60,60,"t2") === false);
+      check("edge touch allowed", validPlacement(Object.assign({},tpl,{id:"t2"}),160,100,60,60,"t2") === true);
+      check("out of room rejected", validPlacement(Object.assign({},tpl,{id:"t2"}),340,100,60,60,"t2") === false);
+
+      state.items = [];
+      const wallTpl = Object.assign({},tpl,{id:"w1",kind:"wall",layer:"wall",wall:true,w:60,d:35});
+      check("wall item away from wall rejected", validPlacement(wallTpl,100,100,60,35,null) === false);
+      check("wall item on wall allowed", validPlacement(wallTpl,100,0,60,35,null) === true);
+
+      state.items = [Object.assign({},tpl,{id:"fixed1",fixed:true,layer:"fixed",x:10,y:10,w:40,d:40})];
+      check("fixed structure blocks floor item", validPlacement(Object.assign({},tpl,{id:"t3"}),20,20,60,60,"t3") === false);
+
+      state.items = [];
+      const item = Object.assign({},tpl,{id:"j1",x:10,y:10});
+      state.items.push(item);
+      check("calibration factor", calibrationFactor(50,100) === 2 && calibrationFactor(0,100) === null);
+      const migrated = migrateState({version:1, room:{w:360,d:300}, items:[]});
+      check("v1 state migrates safely", migrated.version === 2 && migrated.image === null && migrated.calibration === null);
+      state.image = {dataUrl:"data:image/png;base64,AAAA", name:"test.jpg", aspect:2, w:100, h:50, x:10, y:10, opacity:0.5};
+      state.calibration = {knownCm:100, measuredCm:50, factor:2};
+      render();
+      check("image layer renders", !!document.querySelector(".bg-image"));
+      const json = JSON.stringify(state);
+      const round = JSON.parse(json);
+      check("json roundtrip", validateState(round) && round.items.length === 1 && round.items[0].w === 60);
+      check("image and calibration roundtrip", round.image && round.image.w === 100 && round.calibration.factor === 2);
+
+      lines.push("SUMMARY " + (lines.every(l=>l.startsWith("PASS")||l.startsWith("SUMMARY")) ? "OK" : "FAILED"));
+    } finally {
+      state = saved;
+      render();
+    }
+    const pre = $("#selftest");
+    pre.textContent = lines.join("\n");
+    pre.classList.add("show");
+  }
+
+  loadLocal();
+  render();
+  applyIncoming();
+  const params = new URLSearchParams(location.search);
+  if (params.has("selftest")) selfTest();
+  window.LayoutApp = { get state(){return state;}, addItem, deleteSelected, validPlacement, validateState, CATALOG, calibrationFactor };
+})();
+</script>
+</body>
+</html>
+
